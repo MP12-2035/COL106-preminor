@@ -20,6 +20,8 @@ public:
     void showHistory(const std::string& filename);
     void recentFiles(int num);
     void biggestTrees(int num);
+// list files, an array with filenames mapped to the root version of them
+
 
 private:
     HashMap<std::string, File*> files_map;
