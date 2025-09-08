@@ -3,7 +3,7 @@
 
 #include <string>
 #include <stack>
-#include <iostream>  // for std::cout in history method
+#include <iostream>  
 #include "TreeNode.hpp"
 #include "HashMap.hpp"
 
@@ -14,8 +14,6 @@ private:
     TreeNode* active_version;
     HashMap<int, TreeNode*> version_map;
     int total_versions;
-
-    // Recursively delete all nodes in the version tree
     void deleteTree(TreeNode* node);
 
 public:
