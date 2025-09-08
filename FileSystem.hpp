@@ -6,6 +6,8 @@
 #include "HashMap.hpp"
 #include "Heap.hpp"
 #include <iostream>
+#include <queue>
+
 
 class FileSystem {
 public:
@@ -21,6 +23,27 @@ public:
     void showHistory(const std::string& filename);
     void recentFiles(int num);
     void biggestTrees(int num);
+    void listFiles();
+    std::queue<std::string> recentFilesQueue;
+
+    void accessedFile(const std::string& filename) {
+        recentFilesQueue.push(filename);
+    }
+
+    void recentFiles(int num) {
+        if (num <= 0) return;
+
+        std::queue<std::string> tempQueue = recentFilesQueue;
+        int count = 0;
+        while (!tempQueue.empty() && count < num) {
+            std::cout << tempQueue.front() << "\n";
+            tempQueue.pop();
+            ++count;
+        }
+    }
+
+
+
 // list files, an array with filenames mapped to the root version of them
 
 
