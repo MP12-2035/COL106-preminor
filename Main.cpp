@@ -7,8 +7,8 @@ int main() {
     FileSystem fs;
     std::string line;
 
-    std::cout << "Time-Travelling File System\n";
-    std::cout << "Enter commands (CREATE, READ, INSERT, UPDATE, SNAPSHOT, ROLLBACK, HISTORY, RECENT FILES, BIGGEST TREES, EXIT)\n";
+    std::cout << "Time-Travelling File System"<<endl;
+    std::cout << "Enter commands (CREATE, READ, INSERT, UPDATE, SNAPSHOT, ROLLBACK, HISTORY, RECENT FILES, BIGGEST TREES, EXIT)"<<endl;
 
     while (true) {
         std::cout << "> ";
