@@ -9,6 +9,7 @@
 
 class File {
 friend class TreeNode;
+friend class FileSystem;
 private:
     std::string name;
     TreeNode* root;
@@ -21,6 +22,7 @@ private:
 
 public:
     File(const std::string& filename);
+    File();
     ~File();
 
     std::string read() const;
@@ -28,13 +30,13 @@ public:
     void update(const std::string& content);
     void snapshot(const std::string& message);
     void rollback(int version_id = -1);
-    void history() ;  //uses getVersionPath internally
+    void history() ;  //uses rootpath 
 
     TreeNode* findVersion(int version_id);
     const std::string& getName() const;
     std::vector<TreeNode*> getLeafVersions() const;
     void print(const std::vector<TreeNode*>& nodes) const;
-
+    void tag(const std::string& tag); //uses the iterator
 };
 
 // Constructor
@@ -47,6 +49,8 @@ File::File(const std::string& filename)
     active_version = root;
     version_map.insert(0, root);
 }
+
+File::File() : File(FileSystem::generateUntitledName()) {}
 
 // Destructor
 File::~File() {
@@ -197,5 +201,14 @@ std::vector<TreeNode*> File::getLeafVersions() const {
     }
     return leaves;
 }
+
+//Add a tag to all file versions at once, uses iterator
+void File::tag(const std::string& tag) {
+        version_map.iterate([&tag](const int& version_id, TreeNode* &node){
+            if (node) {
+                node->message += " " + tag;
+            }
+        });
+    }
 
 #endif // FILE_HPP
