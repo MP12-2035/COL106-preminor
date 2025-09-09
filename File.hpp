@@ -8,6 +8,7 @@
 #include "HashMap.hpp"
 
 class File {
+friend class TreeNode;
 private:
     std::string name;
     TreeNode* root;
@@ -26,8 +27,10 @@ public:
     void snapshot(const std::string& message);
     void rollback(int version_id = -1);
     void history() const;
+    TreeNode* findVersion(int version_id);
     const std::string& getName() const;
     void printLeafVersions() const;
+    std::vector<TreeNode*> getVersionPath(int version_id);
 
 };
 
@@ -148,6 +151,20 @@ void File::history() const {
 const std::string& File::getName() const {
     return name;
 }
+
+TreeNode* File::findVersion(int version_id) {
+    TreeNode* node = nullptr;
+    if (version_map.find(version_id, node)) {
+        return node;
+    }
+    return nullptr;  // version not found
+}
+
+std::vector<TreeNode*> File::getVersionPath(int version_id) {
+        TreeNode* node = findVersion(version_id);
+        if (node == nullptr) return {};
+        return node->getPathToRoot();
+    }
 
 void File::printLeafVersions() const {
     if (!root) return;
