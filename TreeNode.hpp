@@ -31,8 +31,8 @@ public:
     void addChild(TreeNode* child);
     bool removeChild(TreeNode* child);
     int childCount() const;
-    TreeNode* findNode(int id);
-    std::vector<TreeNode*> getPathFromRoot();
+    // TreeNode* findNode(int id);
+    std::vector<TreeNode*> rootpath();
     bool isSnapshot() const;
     void updateContent(const std::string& newContent);
     void updateMessage(const std::string& newMessage);
@@ -81,6 +81,7 @@ bool TreeNode::removeChild(TreeNode* child) {
         if (*i == child) {
             children.erase(i);
             child->parent = nullptr;
+            delete child;
             return true;
         }
     }
@@ -91,26 +92,26 @@ int TreeNode::childCount() const {
     return (int)children.size();
 }
 
-TreeNode* TreeNode::findNode(int id) { //iterative bfs
-    std::queue<TreeNode*> q;
-    q.push(this);  
+// TreeNode* TreeNode::findNode(int id) { //iterative bfs
+//     std::queue<TreeNode*> q;
+//     q.push(this);  
     
-    while (!q.empty()) {
-        TreeNode* current = q.front();
-        q.pop();
+//     while (!q.empty()) {
+//         TreeNode* current = q.front();
+//         q.pop();
 
-        if (current->version_id == id) {
-            return current;
-        }
+//         if (current->version_id == id) {
+//             return current;
+//         }
 
-        for (TreeNode* child : current->children) {
-            q.push(child);
-        }
-    }
-    return nullptr;  
-}
+//         for (TreeNode* child : current->children) {
+//             q.push(child);
+//         }
+//     }
+//     return nullptr;  
+// }
 
-std::vector<TreeNode*> TreeNode::getPathFromRoot() {
+std::vector<TreeNode*> TreeNode::rootpath() {
     std::vector<TreeNode*> path;
     TreeNode* current = this;
     while (current) {
