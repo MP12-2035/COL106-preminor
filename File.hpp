@@ -72,7 +72,7 @@ std::string File::read() const {
 // Append content to active version or create new child if snapshot
 void File::insert(const std::string& content) {
     if (!active_version) {
-        cout<<"No version selected as active."<<endl;
+        std::cout<<"No version selected as active."<<std::endl;
     return;
     }
     if (active_version->isSnapshot()) {
@@ -90,7 +90,7 @@ void File::insert(const std::string& content) {
 // Replace content of active version or create new child if snapshot
 void File::update(const std::string& content) {
     if (!active_version) {
-        cout<<"No version selected as active."<<endl;
+        std::cout<<"No version selected as active."<<std::endl;
     return;
     }
     if (active_version->isSnapshot()) {
@@ -107,7 +107,7 @@ void File::update(const std::string& content) {
 // Mark current active version as snapshot with message
 void File::snapshot(const std::string& message="") {
     if (!active_version) {
-        cout<<"No version selected as active."<<endl;
+        std::cout<<"No version selected as active."<<std::endl;
     return;
     }
     active_version->updateMessage(message);
@@ -120,7 +120,7 @@ void File::rollback(int version_id) {
         if (active_version && active_version->parent) {
             active_version = active_version->parent;
         } else {
-            std::cout << "No parent version to rollback to."<<endl;
+            std::cout << "No parent version to rollback to."<<std::endl;
         }
     } else {  // rollback to specific version
         TreeNode* target = nullptr;
@@ -136,7 +136,7 @@ void File::rollback(int version_id) {
 // Print snapshot history from root to active version using getVersionPath()
 void File::history()  {
     if (!active_version) return;
-    std::vector<TreeNode*> path = (File*)this->getVersionPath(active_version->version_id);
+    std::vector<TreeNode*> path = getVersionPath(active_version->version_id);
     std::vector<TreeNode*> snapshots;
     for (auto node : path) {
         if (node->isSnapshot()) {
@@ -157,7 +157,7 @@ TreeNode* File::findVersion(int version_id) {
     if (version_map.find(version_id, node)) {
         return node;
     }
-    std::cout<<"NOT FOUND"<<endl;
+    std::cout<<"NOT FOUND"<<std::endl;
     return nullptr;  // version not found
 }
 
@@ -169,12 +169,12 @@ std::vector<TreeNode*> File::getVersionPath(int version_id) {
 }
 
 // function to print details, defined such for better modularity
-void File::printTreeNodeList(const std::vector<TreeNode*>& nodes) const {
+void File::print(const std::vector<TreeNode*>& nodes) const {
         for (TreeNode* node : nodes) {
             if (node) {
                 std::cout << "Version ID: " << node->version_id
                           << " | Message: " << node->message
-                          << " | Updated: " << std::ctime(&node->created_timestamp);
+                          << " | Updated: " << std::ctime(&node->created_timestamp)<<std::endl;
             }
         }
     }
