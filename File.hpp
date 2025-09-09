@@ -1,6 +1,5 @@
 #ifndef FILE_HPP
 #define FILE_HPP
-
 #include <string>
 #include <iostream>  
 #include <vector>
@@ -31,9 +30,27 @@ public:
     void snapshot(const std::string& message);
     void rollback(int version_id = -1);
     void history() const;  // Uses getVersionPath internally
+
     TreeNode* findVersion(int version_id);
     const std::string& getName() const;
-    std::vector<TreeNode*> getLeafVersions() const
+
+    std::vector<TreeNode*> getLeafVersions() const;
+
+    void printTreeNodeList(const std::vector<TreeNode*>& nodes) const {
+        for (TreeNode* node : nodes) {
+            if (node) {
+                std::cout << "Version ID: " << node->version_id
+                          << " | Message: " << node->message
+                          << " | Updated: " << std::ctime(&node->created_timestamp);
+            }
+        }
+    }
+
+    // Helper function to print all leaf versions using printTreeNodeList
+    void printLeafVersions() const {
+        auto leaves = getLeafVersions();
+        printTreeNodeList(leaves);
+    }
 };
 
 // Constructor
@@ -126,13 +143,13 @@ void File::rollback(int version_id) {
 void File::history() const {
     if (!active_version) return;
     std::vector<TreeNode*> path = const_cast<File*>(this)->getVersionPath(active_version->version_id);
+    std::vector<TreeNode*> snapshots;
     for (auto node : path) {
         if (node->isSnapshot()) {
-            std::cout << "Version " << node->version_id 
-                      << " - " << std::ctime(&node->snapshot_timestamp)
-                      << " - " << node->message << std::endl;
+            snapshots.push_back(node);
         }
     }
+    printTreeNodeList(snapshots);
 }
 
 // Return filename string
@@ -156,18 +173,15 @@ std::vector<TreeNode*> File::getVersionPath(int version_id) {
     return node->rootpath();  // using original TreeNode method name
 }
 
-// Print all leaf versions of the tree
+// Return all leaf version nodes
 std::vector<TreeNode*> File::getLeafVersions() const {
     std::vector<TreeNode*> leaves;
     if (!root) return leaves;
-
     std::queue<TreeNode*> q;
     q.push(root);
-
     while (!q.empty()) {
         TreeNode* current = q.front();
         q.pop();
-
         if (current->childCount() == 0) {
             leaves.push_back(current);
         } else {
