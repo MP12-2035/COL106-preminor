@@ -2,8 +2,9 @@
 #define FILE_HPP
 
 #include <string>
-#include <stack>
 #include <iostream>  
+#include <vector>
+#include <queue>
 #include "TreeNode.hpp"
 #include "HashMap.hpp"
 
@@ -17,6 +18,9 @@ private:
     int total_versions;
     void deleteTree(TreeNode* node);
 
+    // Private: returns vector of nodes from root to given version node
+    std::vector<TreeNode*> getVersionPath(int version_id);
+
 public:
     File(const std::string& filename);
     ~File();
@@ -26,12 +30,10 @@ public:
     void update(const std::string& content);
     void snapshot(const std::string& message);
     void rollback(int version_id = -1);
-    void history() const;
+    void history() const;  // Uses getVersionPath internally
     TreeNode* findVersion(int version_id);
     const std::string& getName() const;
-    void printLeafVersions() const;
-    std::vector<TreeNode*> getVersionPath(int version_id);
-
+    std::vector<TreeNode*> getLeafVersions() const
 };
 
 // Constructor
@@ -69,9 +71,7 @@ std::string File::read() const {
 // Append content to active version or create new child if snapshot
 void File::insert(const std::string& content) {
     if (!active_version) return;
-
     if (active_version->isSnapshot()) {
-        // Create new child version
         TreeNode* new_node = new TreeNode(total_versions, active_version->content, active_version);
         new_node->updateContent(new_node->content + content);
         active_version->addChild(new_node);
@@ -79,7 +79,6 @@ void File::insert(const std::string& content) {
         version_map.insert(total_versions, new_node);
         ++total_versions;
     } else {
-        // Modify content in place
         active_version->updateContent(active_version->content + content);
     }
 }
@@ -87,7 +86,6 @@ void File::insert(const std::string& content) {
 // Replace content of active version or create new child if snapshot
 void File::update(const std::string& content) {
     if (!active_version) return;
-
     if (active_version->isSnapshot()) {
         TreeNode* new_node = new TreeNode(total_versions, content, active_version);
         active_version->addChild(new_node);
@@ -102,7 +100,6 @@ void File::update(const std::string& content) {
 // Mark current active version as snapshot with message
 void File::snapshot(const std::string& message) {
     if (!active_version) return;
-
     active_version->updateMessage(message);
     active_version->snapshot_timestamp = std::time(nullptr);
 }
@@ -125,25 +122,16 @@ void File::rollback(int version_id) {
     }
 }
 
-// Print all snapshotted versions from root to active version chronologically
+// Print snapshot history from root to active version using getVersionPath()
 void File::history() const {
     if (!active_version) return;
-
-    std::stack<TreeNode*> snapshots;
-    TreeNode* curr = active_version;
-
-    while (curr) {
-        if (curr->isSnapshot())
-            snapshots.push(curr);
-        curr = curr->parent;
-    }
-
-    while (!snapshots.empty()) {
-        TreeNode* node = snapshots.top();
-        snapshots.pop();
-        std::cout << "Version " << node->version_id 
-                  << " - " << std::ctime(&node->snapshot_timestamp)
-                  << " - " << node->message << std::endl;
+    std::vector<TreeNode*> path = const_cast<File*>(this)->getVersionPath(active_version->version_id);
+    for (auto node : path) {
+        if (node->isSnapshot()) {
+            std::cout << "Version " << node->version_id 
+                      << " - " << std::ctime(&node->snapshot_timestamp)
+                      << " - " << node->message << std::endl;
+        }
     }
 }
 
@@ -152,6 +140,7 @@ const std::string& File::getName() const {
     return name;
 }
 
+// Find version node by ID using version_map
 TreeNode* File::findVersion(int version_id) {
     TreeNode* node = nullptr;
     if (version_map.find(version_id, node)) {
@@ -160,14 +149,17 @@ TreeNode* File::findVersion(int version_id) {
     return nullptr;  // version not found
 }
 
+// Private: get full path from root to given version ID
 std::vector<TreeNode*> File::getVersionPath(int version_id) {
-        TreeNode* node = findVersion(version_id);
-        if (node == nullptr) return {};
-        return node->getPathToRoot();
-    }
+    TreeNode* node = findVersion(version_id);
+    if (node == nullptr) return {};
+    return node->rootpath();  // using original TreeNode method name
+}
 
-void File::printLeafVersions() const {
-    if (!root) return;
+// Print all leaf versions of the tree
+std::vector<TreeNode*> File::getLeafVersions() const {
+    std::vector<TreeNode*> leaves;
+    if (!root) return leaves;
 
     std::queue<TreeNode*> q;
     q.push(root);
@@ -177,16 +169,14 @@ void File::printLeafVersions() const {
         q.pop();
 
         if (current->childCount() == 0) {
-            std::cout << "Version ID: " << current->version_id
-                      << " | Message: " << current->message
-                      << " | Updated: " << std::ctime(&current->created_timestamp);
+            leaves.push_back(current);
         } else {
             for (TreeNode* child : current->children) {
                 q.push(child);
             }
         }
     }
+    return leaves;
 }
-
 
 #endif // FILE_HPP
