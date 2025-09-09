@@ -34,18 +34,23 @@ public:
     bool remove(const K& key);
     float getLoadFactor() const {return (float)size / capacity;}
 
-    // Make a good dictionary style iterator
-    // Simple iterator to interate through all colliding objects at a certain hash
-    // template <typename Func>
-    // void iterate(Func func) const {
-    //     for (int i = 0; i < capacity; ++i) {
-    //         Node* curr = table[i];
-    //         while (curr) {
-    //             func(curr->key, curr->value);
-    //             curr = curr->next;
-    //         }
-    //     }
-    // }
+    // Make a good dictionary style iterator, repalce this simple one
+    template <typename Func>
+    void iterate(Func func) {
+        for (int i = 0; i < capacity; ++i) {
+            Node* curr = table[i];
+            while (curr) {
+                func(curr->key, curr->value);
+                curr = curr->next;
+            }
+        }
+    }
+
+    void iterate() {
+        iterate([](const K& key, V&) {
+            std::cout << "Version ID: " << key << std::endl;
+        });
+    }
 };
 
 // Constructor
