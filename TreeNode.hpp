@@ -2,6 +2,7 @@
 #define TREENODE_HPP
 #include <string>
 #include <vector>
+#include <algorithms>
 #include <queue>
 #include <ctime>
 using namespace std;
@@ -115,9 +116,10 @@ std::vector<TreeNode*> TreeNode::rootpath() {
     std::vector<TreeNode*> path;
     TreeNode* current = this;
     while (current) {
-        path.insert(path.begin(), current);
+        path.push_back(current); 
         current = current->parent;
     }
+    std::reverse(path.begin(), path.end());  
     return path;
 }
 
