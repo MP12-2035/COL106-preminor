@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <iostream>   // for std::cout
+#include <iostream>   
 #include "TreeNode.hpp"
 
 template <typename K, typename V>
@@ -15,17 +15,13 @@ class HashMap {
         Node(int k, const V& v) : key(k), value(v), next(nullptr) {}
     };
 
-    std::vector<Node*> table;
-    int size;                // Number of elements stored
+    std::vector<Node*> table;// The actual hashmap
+    int size;                // Count of elements stored
     int capacity;            // Current capacity (number of buckets)
-    const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009};
-    int capacityIndex;       // Index into capacities vector
-    float maxLoad = 0.8f;
-
-    int hashFunction(int key) const {
-        return key % capacity;
-    }
-
+    const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009}; //prime numbers as capacities for better hashing
+    int capacityIndex;       // Index into capacities vector for easy resizing
+    float maxLoad = 1.0f;    // Maximum load allowed=1.0 per cell
+    int hashFunction(int key) const { return key % capacity; }
     void clear();
 
 public:
@@ -33,25 +29,23 @@ public:
     ~HashMap();
 
     void resize();
-
     void insert(const K& key, const V& value);
     bool find(const K& key, V& value_out) const;
     bool remove(const K& key);
-    float getLoadFactor() const {
-        return static_cast<float>(size) / capacity;
-    }
+    float getLoadFactor() const {return (float)size / capacity;}
 
-    // Simple iterate with a lambda/function
-    template <typename Func>
-    void iterate(Func func) const {
-        for (int i = 0; i < capacity; ++i) {
-            Node* curr = table[i];
-            while (curr) {
-                func(curr->key, curr->value);
-                curr = curr->next;
-            }
-        }
-    }
+    // Make a good dictionary style iterator
+    // Simple iterator to interate through all colliding objects at a certain hash
+    // template <typename Func>
+    // void iterate(Func func) const {
+    //     for (int i = 0; i < capacity; ++i) {
+    //         Node* curr = table[i];
+    //         while (curr) {
+    //             func(curr->key, curr->value);
+    //             curr = curr->next;
+    //         }
+    //     }
+    // }
 };
 
 // Constructor
@@ -81,10 +75,10 @@ void HashMap<K, V>::clear() {
     size = 0;
 }
 
-
+//to resize the vector and reallocate the hashes
 template <typename K, typename V>
 void HashMap<K, V>::resize() {
-    if (capacityIndex + 1 >= static_cast<int>(capacities.size())) {
+    if (capacityIndex + 1 >= int(capacities.size())) {
         std::cout << "Max capacity reached, cannot resize further." << std::endl;
         return;
     }
@@ -102,7 +96,7 @@ void HashMap<K, V>::resize() {
         }
     }
 
-    table = std::move(newTable);
+    table = std::move(newTable); //move instead of copying coz better resource usage
     capacity = newCapacity;
 }
 
