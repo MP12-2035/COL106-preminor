@@ -12,6 +12,7 @@ public:
     void rm(const std::string& key);
     void upd(const std::string& key, int new_val);
     void print_top(int num) const;
+
 private:
     std::vector<std::pair<std::string, int>> elements;
     hash_map<std::string, int> key_to_idx;
@@ -21,6 +22,8 @@ private:
     void heapify_up(int idx);
     void heapify_down(int idx);
     void swap_els(int i, int j);
+
+
 };
 using hp = heap;
 
@@ -97,18 +100,16 @@ void hp::upd(const std::string& key, int new_val) {
     }
 }
 void hp::print_top(int num) const {
-    if (num <= 0) return;
-    std::vector<std::pair<std::string, int>> temp_elements = elements;
-    auto cmp = [](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
-        return a.second < b.second;
-    };
-    std::priority_queue<std::pair<std::string, int>, std::vector<std::pair<std::string, int>>, decltype(cmp)>
-        temp_heap(cmp, temp_elements);
-    for (int i = 0; i < num && !temp_heap.empty(); ++i) {
-        auto top = temp_heap.top();
-        temp_heap.pop();
-        std::cout << "Key: " << top.first << ", Value: " << top.second << std::endl;
+    int n = std::min(num, (int)elements.size());
+
+    hp temp_heap = *this;
+
+    std::cout << "Top " << n << " elements:\n";
+    for (int i = 0; i < n; ++i) {
+        if (temp_heap.elements.empty()) break;
+        auto top = temp_heap.elements[0]; 
+        std::cout << top.first << " : " << top.second << "\n";
+        temp_heap.rm(top.first); 
     }
-}
 
 #endif // HEAP_HPP
