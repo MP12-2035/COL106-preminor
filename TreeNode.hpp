@@ -1,111 +1,81 @@
-#ifndef TREENODE_HPP
-#define TREENODE_HPP
-
+#ifndef TREE_NODE_HPP
+#define TREE_NODE_HPP
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <ctime>
-
-class File;
-
-class TreeNode {
-    friend class File;
-
+class file;
+class tree_node {
+    friend class file;
 private:
     int version_id;
     std::string content;
     std::string message;
-
-    const time_t created_timestamp;     
-    time_t last_modified_timestamp;    
-    time_t snapshot_timestamp;
-
-    TreeNode* parent;
-    std::vector<TreeNode*> children;
-
+    const time_t created_ts;     
+    time_t last_mod_ts;    
+    time_t ss_ts;
+    tree_node* parent;
+    std::vector<tree_node*> children;
 public:
     // Constructors
-    TreeNode(int id, const std::string& cont, TreeNode* par);
-    TreeNode(int id, const std::string& cont);
-    TreeNode(int id);
-    TreeNode();
-
-    // Rule of three: disable copying to avoid shallow copies & double deletes
-    TreeNode(const TreeNode&) = delete;
-    TreeNode& operator=(const TreeNode&) = delete;
-
-    ~TreeNode();
-
-    void addChild(TreeNode* child);
-
-    // Removes and deletes child to avoid memory leaks
-    bool removeChild(TreeNode* child);
-
-    int childCount() const;
-
-    std::vector<TreeNode*> rootpath();
-
-    bool isSnapshot() const;
-
-    void updateContent(const std::string& newContent);
-
-    void updateMessage(const std::string& newMessage);
-
+    tree_node(int id, const std::string& cont, tree_node* par);
+    tree_node(int id, const std::string& cont);
+    tree_node(int id);
+    tree_node();
+    ~tree_node();
+    void add_child(tree_node* child);
+    bool rm_child(tree_node* child);
+    int child_cnt() const;
+    std::vector<tree_node*> rootpath();
+    bool is_ss() const;
+    void upd_cont(const std::string& new_cont);
+    void upd_msg(const std::string& new_msg);
     // Accessors for timestamps
-    time_t getCreatedTimestamp() const { return created_timestamp; }
-    time_t getLastModifiedTimestamp() const { return last_modified_timestamp; }
-    void setSnapshotTimestamp(time_t t) { snapshot_timestamp = t; }
-    time_t getSnapshotTimestamp() const { return snapshot_timestamp; }
+    time_t get_created_ts() const { return created_ts; }
+    time_t get_last_mod_ts() const { return last_mod_ts; }
+    void set_ss_ts(time_t t) { ss_ts = t; }
+    time_t get_ss_ts() const { return ss_ts; }
 };
+using tn = tree_node;
 
-// Implementation
-
-TreeNode::TreeNode(int id, const std::string& cont, TreeNode* par)
-    : version_id(id), content(cont), parent(par), message(""), snapshot_timestamp(0),
-      created_timestamp(std::time(nullptr)), last_modified_timestamp(created_timestamp) {}
-
-TreeNode::TreeNode(int id, const std::string& cont)
-    : TreeNode(id, cont, nullptr) {}
-
-TreeNode::TreeNode(int id)
-    : TreeNode(id, "", nullptr) {}
-
-TreeNode::TreeNode()
-    : TreeNode(0, "", nullptr) {}
-
-TreeNode::~TreeNode() {
-    for (TreeNode* child : children) {
+tn::tn(int id, const std::string& cont, tn* par)
+    : version_id(id), content(cont), parent(par), message(""), ss_ts(0),
+      created_ts(std::time(nullptr)), last_mod_ts(created_ts) {}
+tn::tn(int id, const std::string& cont)
+    : tn(id, cont, nullptr) {}
+tn::tn(int id)
+    : tn(id, "", nullptr) {}
+tn::tn()
+    : tn(0, "", nullptr) {}
+tn::~tn() {
+    for (tn* child : children) {
         delete child;
     }
     children.clear();
 }
-
-void TreeNode::addChild(TreeNode* child) {
+void tn::add_child(tn* child) {
     if (child) {
         child->parent = this;
         children.push_back(child);
     }
 }
-
-bool TreeNode::removeChild(TreeNode* child) {
+bool tn::rm_child(tn* child) {
     for (auto it = children.begin(); it != children.end(); ++it) {
         if (*it == child) {
             children.erase(it);
             child->parent = nullptr;
-            delete child;  // Safe delete to avoid leaks
+            delete child; 
             return true;
         }
     }
     return false;
 }
-
-int TreeNode::childCount() const {
+int tn::child_cnt() const {
     return static_cast<int>(children.size());
 }
-
-std::vector<TreeNode*> TreeNode::rootpath() {
-    std::vector<TreeNode*> path;
-    TreeNode* current = this;
+std::vector<tn*> tn::rootpath() {
+    std::vector<tn*> path;
+    tn* current = this;
     while (current) {
         path.push_back(current);
         current = current->parent;
@@ -113,19 +83,15 @@ std::vector<TreeNode*> TreeNode::rootpath() {
     std::reverse(path.begin(), path.end());
     return path;
 }
-
-bool TreeNode::isSnapshot() const {
-    return snapshot_timestamp != 0;
+bool tn::is_ss() const {
+    return ss_ts != 0;
 }
-
-void TreeNode::updateContent(const std::string& newContent) {
-    content = newContent;
-    last_modified_timestamp = std::time(nullptr);
+void tn::upd_cont(const std::string& new_cont) {
+    content = new_cont;
+    last_mod_ts = std::time(nullptr);
 }
-
-void TreeNode::updateMessage(const std::string& newMessage) {
-    message = newMessage;
-    last_modified_timestamp = std::time(nullptr);
+void tn::upd_msg(const std::string& new_msg) {
+    message = new_msg;
+    last_mod_ts = std::time(nullptr);
 }
-
-#endif // TREENODE_HPP
+#endif // TREE_NODE_HPP
