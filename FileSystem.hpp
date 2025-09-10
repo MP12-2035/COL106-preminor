@@ -45,10 +45,7 @@ public:
     void show_command_history();
 };
 
-// Alias for convenience
 using fs = file_system;
-
-// --- Implementation using alias fs ---
 
 fs::fs() {}
 fs::~fs() {
