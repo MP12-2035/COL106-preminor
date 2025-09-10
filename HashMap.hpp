@@ -3,25 +3,48 @@
 
 #include <vector>
 #include <string>
-#include <iostream>   
+#include <iostream>
 #include "TreeNode.hpp"
 
 template <typename K, typename V>
 class HashMap {
     struct Node {
-        int key;
+        K key;
         V value;
         Node* next;
-        Node(int k, const V& v) : key(k), value(v), next(nullptr) {}
+        Node(const K& k, const V& v) : key(k), value(v), next(nullptr) {}
     };
 
-    std::vector<Node*> table;// The actual hashmap
-    int size;                // Count of elements stored
-    int capacity;            // Current capacity (number of buckets)
-    const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009}; //prime numbers as capacities for better hashing
-    int capacityIndex;       // Index into capacities vector for easy resizing
-    float maxLoad = 1.0f;    // Maximum load allowed=1.0 per cell
-    int hashFunction(int key) const { return key % capacity; }
+    std::vector<Node*> table;
+    int size;
+    int capacity;
+    const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009};
+    int capacityIndex;
+    float maxLoad = 1.0f;
+
+    // Hash functions: overload for int and string
+    int hashFunction(const int& key) const {
+        return key % capacity;
+    }
+
+    int hashFunction(const std::string& key) const {
+        const int p = 31;
+        int hash = 0;
+        int power = 1;
+        for (char c : key) {
+            hash = (hash + (c - 'a' + 1) * power) % capacity;
+            power = (power * p) % capacity;
+        }
+        return hash;
+    }
+
+    // Generic hash triggers compile error if unsupported type
+    template<typename T>
+    int hashFunction(const T&) const {
+        static_assert(sizeof(T) == 0, "Hash function not defined for this key type.");
+        return 0;
+    }
+
     void clear();
 
 public:
@@ -32,9 +55,8 @@ public:
     void insert(const K& key, const V& value);
     bool find(const K& key, V& value_out) const;
     bool remove(const K& key);
-    float getLoadFactor() const {return (float)size / capacity;}
+    float getLoadFactor() const { return static_cast<float>(size) / capacity; }
 
-    // Make a good dictionary style iterator, repalce this simple one
     template <typename Func>
     void iterate(Func func) {
         for (int i = 0; i < capacity; ++i) {
@@ -48,7 +70,7 @@ public:
 
     void iterate() {
         iterate([](const K& key, V&) {
-            std::cout << "Version ID: " << key << std::endl;
+            std::cout << "Key: " << key << std::endl;
         });
     }
 };
@@ -66,7 +88,7 @@ HashMap<K, V>::~HashMap() {
     clear();
 }
 
-// Clear all nodes and reset
+// Clear all nodes
 template <typename K, typename V>
 void HashMap<K, V>::clear() {
     for (auto head : table) {
@@ -80,7 +102,7 @@ void HashMap<K, V>::clear() {
     size = 0;
 }
 
-//to resize the vector and reallocate the hashes
+// Resize and rehash all keys
 template <typename K, typename V>
 void HashMap<K, V>::resize() {
     if (capacityIndex + 1 >= int(capacities.size())) {
@@ -94,50 +116,55 @@ void HashMap<K, V>::resize() {
         Node* curr = table[i];
         while (curr) {
             Node* nextNode = curr->next;
-            int newIndex = curr->key % newCapacity;
+            // Use correct hashFunction depending on key type:
+            int newIndex = 0;
+            if constexpr (std::is_same_v<K, int>) {
+                newIndex = curr->key % newCapacity;
+            } else if constexpr (std::is_same_v<K, std::string>) {
+                const int p = 31;
+                int hash = 0;
+                int power = 1;
+                for (char c : curr->key) {
+                    hash = (hash + (c - 'a' + 1) * power) % newCapacity;
+                    power = (power * p) % newCapacity;
+                }
+                newIndex = hash;
+            }
             curr->next = newTable[newIndex];
             newTable[newIndex] = curr;
             curr = nextNode;
         }
     }
-
-    table = std::move(newTable); //move instead of copying coz better resource usage
+    table = std::move(newTable);
     capacity = newCapacity;
 }
 
-
+// Insert or update key/value
 template <typename K, typename V>
 void HashMap<K, V>::insert(const K& key, const V& value) {
-    int hashedKey = key;
-    int index = hashFunction(hashedKey);
-
+    int index = hashFunction(key);
     Node* curr = table[index];
     while (curr) {
-        if (curr->key == hashedKey) {
+        if (curr->key == key) {
             curr->value = value;
             return;
         }
         curr = curr->next;
     }
-
-    Node* newNode = new Node(hashedKey, value);
+    Node* newNode = new Node(key, value);
     newNode->next = table[index];
     table[index] = newNode;
     ++size;
-
-    if (getLoadFactor() > maxLoad) {
-        resize();
-    }
+    if (getLoadFactor() > maxLoad) resize();
 }
 
-// Find value by key
+// Find a value by key
 template <typename K, typename V>
 bool HashMap<K, V>::find(const K& key, V& value_out) const {
-    int hashedKey = key;
-    int index = hashedKey % capacity;
+    int index = hashFunction(key);
     Node* curr = table[index];
     while (curr) {
-        if (curr->key == hashedKey) {
+        if (curr->key == key) {
             value_out = curr->value;
             return true;
         }
@@ -149,13 +176,11 @@ bool HashMap<K, V>::find(const K& key, V& value_out) const {
 // Remove node by key
 template <typename K, typename V>
 bool HashMap<K, V>::remove(const K& key) {
-    int hashedKey = key;
-    int index = hashedKey % capacity;
+    int index = hashFunction(key);
     Node* curr = table[index];
     Node* prev = nullptr;
-
     while (curr) {
-        if (curr->key == hashedKey) {
+        if (curr->key == key) {
             if (prev) {
                 prev->next = curr->next;
             } else {
