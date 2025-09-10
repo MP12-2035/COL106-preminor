@@ -8,9 +8,10 @@
 #include <iostream>
 
 class file;
+
 class tree_node {
     friend class file;
-private:
+public: //private
     int version_id;
     std::string content;
     std::string message;
@@ -19,12 +20,14 @@ private:
     time_t ss_ts;
     tree_node* parent;
     std::vector<tree_node*> children;
-public:
+
+//public:
     tree_node(int id, const std::string& cont, tree_node* par);
     tree_node(int id, const std::string& cont);
     tree_node(int id);
     tree_node();
     ~tree_node();
+
     void add_child(tree_node* child);
     bool rm_child(tree_node* child);
     int child_cnt() const;
@@ -36,6 +39,9 @@ public:
     time_t get_last_mod_ts() const;
     void set_ss_ts(time_t t);
     time_t get_ss_ts() const;
+
+    // Public getter for content
+    std::string get_content() const { return content; }
 };
 
 using tn = tree_node;
