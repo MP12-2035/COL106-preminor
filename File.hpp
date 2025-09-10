@@ -34,6 +34,7 @@ public:
 
     TreeNode* findVersion(int version_id);
     const std::string& getName() const;
+    void rename(const std::string& newName);
     std::vector<TreeNode*> getLeafVersions() const;
     void print(const std::vector<TreeNode*>& nodes) const;
     void tag(const std::string& tag); //uses the iterator
