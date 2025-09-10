@@ -22,7 +22,7 @@ private:
 
 public:
     File(const std::string& filename);
-    File();
+    //File();
     ~File();
 
     std::string read() const;
@@ -51,7 +51,7 @@ File::File(const std::string& filename)
     version_map.insert(0, root);
 }
 
-File::File() : File(FileSystem::generateUntitledName()) {}
+//File::File() : File(FileSystem::generateUntitledName()) {}
 
 // Destructor
 File::~File() {
