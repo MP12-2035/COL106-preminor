@@ -20,7 +20,7 @@ class HashMap {
     int capacity;
     const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009};
     int capacityIndex;
-    float maxLoad = 1.0f;
+    float maxLoad = 0.8f;
 
     // Hash functions: overload for int and string
     int hashFunction(const int& key) const {
@@ -38,10 +38,10 @@ class HashMap {
         return hash;
     }
 
-    // Generic hash triggers compile error if unsupported type
+    // if unsupported type
     template<typename T>
     int hashFunction(const T&) const {
-        static_assert(sizeof(T) == 0, "Hash function not defined for this key type.");
+        std::cout<<"Hash function not defined for this key type.")<<std::endl;
         return 0;
     }
 
