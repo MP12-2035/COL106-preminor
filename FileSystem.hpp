@@ -1,188 +1,153 @@
-#ifndef FILESYSTEM_HPP
-#define FILESYSTEM_HPP
-
+#ifndef FILE_SYSTEM_HPP
+#define FILE_SYSTEM_HPP
 #include <string>
 #include <iostream>
 #include <stack>
-#include "File.hpp"
-#include "HashMap.hpp"
-#include "Heap.hpp"
-
-class FileSystem {
+#include "file.hpp"
+#include "hash_map.hpp"
+#include "heap.hpp"
+class file_system {
 private:
-    int untitledCounter = 0;
-    HashMap<std::string, File*> files_map;
-    Heap biggest_trees_heap;
-    std::stack<std::string> recentFilesStack;  // Now a stack for recent files
-
-    std::string generateUntitledName();
-
+    int untitled_cnt = 0;
+    hash_map<std::string, fl*> files_map;
+    hp biggest_trees_h;
+    std::stack<std::string> recent_files_s;
+    std::string gen_untitled_name();
 public:
-    FileSystem();
-    ~FileSystem();
-
-    void createFile(const std::string& filename);
-    void createFile();
-    void readFile(const std::string& filename);
-    void insertIntoFile(const std::string& filename, const std::string& content);
-    void updateFile(const std::string& filename, const std::string& content);
-    void snapshotFile(const std::string& filename, const std::string& message);
-    void rollbackFile(const std::string& filename, int version_id = -1);
-    void showHistory(const std::string& filename);
-    void recentFiles(int num);
-    void biggestTrees(int num);
-    void listFiles();
-
-    // Rename file and update internal structures, returns success
-    bool renameFile(const std::string& oldName, const std::string& newName);
-
-    void accessedFile(const std::string& filename);
+    file_system();
+    ~file_system();
+    void create_file(const std::string& filename);
+    void create_file();
+    void read_file(const std::string& filename);
+    void insert_into_file(const std::string& filename, const std::string& content);
+    void update_file(const std::string& filename, const std::string& content);
+    void snapshot_file(const std::string& filename, const std::string& message);
+    void rb_file(const std::string& filename, int ver_id = -1);
+    void show_history(const std::string& filename);
+    void recent_files(int num);
+    void biggest_trees(int num);
+    void list_files();
+    bool rnm_file(const std::string& old_n, const std::string& new_n);
+    void accessed_file(const std::string& filename);
 };
-
-// Constructor
-FileSystem::FileSystem() {}
-
-// Destructor
-FileSystem::~FileSystem() {
-    files_map.iterate([this](const std::string& key, File* filePtr) {
+using fs = file_system;
+fs::fs() {}
+fs::~fs() {
+    files_map.iterate([this](const std::string& key, fl* filePtr) {
         delete filePtr;
     });
 }
-
-// Create named file
-void FileSystem::createFile(const std::string& filename) {
-    File* existingFile = nullptr;
-    if (files_map.find(filename, existingFile)) {
+void fs::create_file(const std::string& filename) {
+    fl* existing_file = nullptr;
+    if (files_map.find(filename, existing_file)) {
         std::cout << "File '" << filename << "' already exists.\n";
         return;
     }
-    File* newFile = new File(filename);
-    files_map.insert(filename, newFile);
-    biggest_trees_heap.insert(filename, newFile->total_versions);
-    // Access count: push to stack
-    accessedFile(filename);
+    fl* new_file = new fl(filename);
+    files_map.ins(filename, new_file);
+    biggest_trees_h.ins(filename, new_file->total_versions);
+    accessed_file(filename);
 }
-
-// Create untitled file
-void FileSystem::createFile() {
-    std::string name = generateUntitledName();
-    createFile(name);
+void fs::create_file() {
+    std::string name = gen_untitled_name();
+    create_file(name);
 }
-
-// Rename file: returns true if successful, false if newName already exists or oldName missing
-bool FileSystem::renameFile(const std::string& oldName, const std::string& newName) {
-    File* file = nullptr;
-    if (!files_map.find(oldName, file)) {
-        std::cout << "File '" << oldName << "' not found.\n";
+bool fs::rnm_file(const std::string& old_n, const std::string& new_n) {
+    fl* file = nullptr;
+    if (!files_map.find(old_n, file)) {
+        std::cout << "File '" << old_n << "' not found.\n";
         return false;
     }
-    if (files_map.find(newName, file)) {
-        std::cout << "File '" << newName << "' already exists.\n";
+    if (files_map.find(new_n, file)) {
+        std::cout << "File '" << new_n << "' already exists.\n";
         return false;
     }
-    files_map.remove(oldName);
-    file->rename(newName);
-    files_map.insert(newName, file);
-    biggest_trees_heap.remove(oldName);
-    biggest_trees_heap.insert(newName, file->total_versions);
-    std::cout << "File renamed from '" << oldName << "' to '" << newName << "'\n";
+    files_map.rm(old_n);
+    file->rnm(new_n);
+    files_map.ins(new_n, file);
+    biggest_trees_h.rm(old_n);
+    biggest_trees_h.ins(new_n, file->total_versions);
+    std::cout << "File renamed from '" << old_n << "' to '" << new_n << "'\n";
     return true;
 }
-
-// Generate untitled name
-std::string FileSystem::generateUntitledName() {
-    return "untitled" + std::to_string(++untitledCounter);
+std::string fs::gen_untitled_name() {
+    return "untitled" + std::to_string(++untitled_cnt);
 }
-
-// --- File operations ---
-
-void FileSystem::readFile(const std::string& filename) {
-    File* file = nullptr;
+void fs::read_file(const std::string& filename) {
+    fl* file = nullptr;
     if (!files_map.find(filename, file)) {
         std::cout << "File '" << filename << "' not found.\n";
         return;
     }
     std::cout << file->read() << "\n";
-    accessedFile(filename);  // Mark as recently accessed
+    accessed_file(filename);
 }
-
-void FileSystem::insertIntoFile(const std::string& filename, const std::string& content) {
-    File* file = nullptr;
+void fs::insert_into_file(const std::string& filename, const std::string& content) {
+    fl* file = nullptr;
     if (!files_map.find(filename, file)) {
         std::cout << "File '" << filename << "' not found.\n";
         return;
     }
-    file->insert(content);
-    biggest_trees_heap.update(filename, file->total_versions);
-    accessedFile(filename);
+    file->ins(content);
+    biggest_trees_h.upd(filename, file->total_versions);
+    accessed_file(filename);
 }
-
-void FileSystem::updateFile(const std::string& filename, const std::string& content) {
-    File* file = nullptr;
+void fs::update_file(const std::string& filename, const std::string& content) {
+    fl* file = nullptr;
     if (!files_map.find(filename, file)) {
         std::cout << "File '" << filename << "' not found.\n";
         return;
     }
-    file->update(content);
-    biggest_trees_heap.update(filename, file->total_versions);
-    accessedFile(filename);
+    file->upd(content);
+    biggest_trees_h.upd(filename, file->total_versions);
+    accessed_file(filename);
 }
-
-void FileSystem::snapshotFile(const std::string& filename, const std::string& message) {
-    File* file = nullptr;
+void fs::snapshot_file(const std::string& filename, const std::string& message) {
+    fl* file = nullptr;
     if (!files_map.find(filename, file)) {
         std::cout << "File '" << filename << "' not found.\n";
         return;
     }
-    file->snapshot(message);
-    biggest_trees_heap.update(filename, file->total_versions);
-    accessedFile(filename);
+    file->ss(message);
+    biggest_trees_h.upd(filename, file->total_versions);
+    accessed_file(filename);
 }
-
-void FileSystem::rollbackFile(const std::string& filename, int version_id) {
-    File* file = nullptr;
+void fs::rb_file(const std::string& filename, int ver_id) {
+    fl* file = nullptr;
     if (!files_map.find(filename, file)) {
         std::cout << "File '" << filename << "' not found.\n";
         return;
     }
-    file->rollback(version_id);
-    accessedFile(filename);
+    file->rb(ver_id);
+    accessed_file(filename);
 }
-
-void FileSystem::showHistory(const std::string& filename) {
-    File* file = nullptr;
+void fs::show_history(const std::string& filename) {
+    fl* file = nullptr;
     if (!files_map.find(filename, file)) {
         std::cout << "File '" << filename << "' not found.\n";
         return;
     }
     file->history();
 }
-
-// Print the N most recently accessed files (LIFO order)
-void FileSystem::recentFiles(int num) {
+void fs::recent_files(int num) {
     if (num <= 0) return;
-    std::stack<std::string> tempStack = recentFilesStack;
+    std::stack<std::string> temp_s = recent_files_s;
     int count = 0;
-    while (!tempStack.empty() && count < num) {
-        std::cout << tempStack.top() << "\n";
-        tempStack.pop();
+    while (!temp_s.empty() && count < num) {
+        std::cout << temp_s.top() << "\n";
+        temp_s.pop();
         ++count;
     }
 }
-
-void FileSystem::biggestTrees(int num) {
-    biggest_trees_heap.printTop(num);
+void fs::biggest_trees(int num) {
+    biggest_trees_h.print_top(num);
 }
-
-void FileSystem::listFiles() {
-    files_map.iterate([](const std::string& name, File* file) {
+void fs::list_files() {
+    files_map.iterate([](const std::string& name, fl* file) {
         std::cout << "File: " << name << "\n";
     });
 }
-
-// Mark as accessed: push to recent files stack
-void FileSystem::accessedFile(const std::string& filename) {
-    recentFilesStack.push(filename);
+void fs::accessed_file(const std::string& filename) {
+    recent_files_s.push(filename);
 }
-
-#endif // FILESYSTEM_HPP
+#endif // FILE_SYSTEM_HPP
