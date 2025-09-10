@@ -1,142 +1,102 @@
 #ifndef HEAP_HPP
 #define HEAP_HPP
-
 #include <vector>
 #include <iostream>
 #include <string>
-#include "HashMap.hpp"
-
-class Heap {
+#include "hash_map.hpp"
+class heap {
 public:    
-    Heap();
-    ~Heap();
-
-    // Insert a new (key, value) pair into the heap
-    void insert(const std::string& key, int value);
-
-    // Remove the node associated with key
-    void remove(const std::string& key);
-
-    // Update the value associated with key
-    void update(const std::string& key, int newValue);
-
-    // Print top 'num' elements (max values first)
-    void printTop(int num) const;
-
+    heap();
+    ~heap();
+    void ins(const std::string& key, int value);
+    void rm(const std::string& key);
+    void upd(const std::string& key, int new_val);
+    void print_top(int num) const;
 private:
-    std::vector<std::pair<std::string, int>> elements; // key, value pairs
-    HashMap<std::string, int> keyToIndex;              // map key -> index in elements
-
+    std::vector<std::pair<std::string, int>> elements;
+    hash_map<std::string, int> key_to_idx;
     int parent(int i) const { return (i - 1) / 2; }
-    int leftChild(int i) const { return 2 * i + 1; }
-    int rightChild(int i) const { return 2 * i + 2; }
-
-    void heapifyUp(int index);
-    void heapifyDown(int index);
-    void swapElements(int i, int j);
+    int left_child(int i) const { return 2 * i + 1; }
+    int right_child(int i) const { return 2 * i + 2; }
+    void heapify_up(int idx);
+    void heapify_down(int idx);
+    void swap_els(int i, int j);
 };
+using hp = heap;
 
-// Constructor
-Heap::Heap() {
-    // nothing to initialize
-}
-// Destructor
-Heap::~Heap() {
-    // nothing to cleanup (vector and hashmap clean themselves)
-}
-
-// Swap heap elements at positions i and j and update keyToIndex map
-void Heap::swapElements(int i, int j) {
+hp::hp() {}
+hp::~hp() {}
+void hp::swap_els(int i, int j) {
     std::swap(elements[i], elements[j]);
-    keyToIndex.insert(elements[i].first, i);
-    keyToIndex.insert(elements[j].first, j);
+    key_to_idx.ins(elements[i].first, i);
+    key_to_idx.ins(elements[j].first, j);
 }
-
-// Heapify up after insert or update (for increased value)
-void Heap::heapifyUp(int index) {
-    while (index > 0) {
-        int p = parent(index);
-        if (elements[index].second > elements[p].second) {
-            swapElements(index, p);
-            index = p;
+void hp::heapify_up(int idx) {
+    while (idx > 0) {
+        int p = parent(idx);
+        if (elements[idx].second > elements[p].second) {
+            swap_els(idx, p);
+            idx = p;
         } else {
             break;
         }
     }
 }
-
-// Heapify down after removal or update (for decreased value)
-void Heap::heapifyDown(int index) {
+void hp::heapify_down(int idx) {
     int size = (int)elements.size();
     while (true) {
-        int largest = index;
-        int left = leftChild(index);
-        int right = rightChild(index);
-
+        int largest = idx;
+        int left = left_child(idx);
+        int right = right_child(idx);
         if (left < size && elements[left].second > elements[largest].second)
             largest = left;
         if (right < size && elements[right].second > elements[largest].second)
             largest = right;
-
-        if (largest != index) {
-            swapElements(index, largest);
-            index = largest;
+        if (largest != idx) {
+            swap_els(idx, largest);
+            idx = largest;
         } else {
             break;
         }
     }
 }
-
-// Insert new key-value pair
-void Heap::insert(const std::string& key, int value) {
-    if (keyToIndex.find(key, value)) {
-        // key exists, use update instead
-        update(key, value);
+void hp::ins(const std::string& key, int value) {
+    int dummy_idx;
+    if (key_to_idx.find(key, dummy_idx)) {
+        upd(key, value);
         return;
     }
     elements.push_back({key, value});
-    int index = (int)elements.size() - 1;
-    keyToIndex.insert(key, index);
-    heapifyUp(index);
+    int idx = (int)elements.size() - 1;
+    key_to_idx.ins(key, idx);
+    heapify_up(idx);
 }
-
-// Remove node by key
-void Heap::remove(const std::string& key) {
-    int index = -1;
-    if (!keyToIndex.find(key, index)) return; // key not found
-
-    int lastIndex = (int)elements.size() - 1;
-    if (index != lastIndex) {
-        swapElements(index, lastIndex);
+void hp::rm(const std::string& key) {
+    int idx = -1;
+    if (!key_to_idx.find(key, idx)) return;
+    int last_idx = (int)elements.size() - 1;
+    if (idx != last_idx) {
+        swap_els(idx, last_idx);
     }
-
     elements.pop_back();
-    keyToIndex.remove(key);
-
-    if (index < (int)elements.size()) {
-        // Fix heap property from changed position
-        heapifyUp(index);
-        heapifyDown(index);
+    key_to_idx.rm(key);
+    if (idx < (int)elements.size()) {
+        heapify_up(idx);
+        heapify_down(idx);
     }
 }
-
-// Update the value at the node with given key
-void Heap::update(const std::string& key, int newValue) {
-    int index = -1;
-    if (!keyToIndex.find(key, index)) return; // key not found
-
-    int oldValue = elements[index].second;
-    elements[index].second = newValue;
-
-    if (newValue > oldValue) {
-        heapifyUp(index);
-    } else if (newValue < oldValue) {
-        heapifyDown(index);
+void hp::upd(const std::string& key, int new_val) {
+    int idx = -1;
+    if (!key_to_idx.find(key, idx)) return;
+    int old_val = elements[idx].second;
+    elements[idx].second = new_val;
+    if (new_val > old_val) {
+        heapify_up(idx);
+    } else if (new_val < old_val) {
+        heapify_down(idx);
     }
 }
-
-// Print top 'num' elements maintaining original heap order
-void Heap::printTop(int num) const {
+void hp::print_top(int num) const {
     if (num <= 0) return;
     int count = 0;
     for (auto& elem : elements) {
@@ -144,5 +104,4 @@ void Heap::printTop(int num) const {
         if (++count >= num) break;
     }
 }
-
 #endif // HEAP_HPP
