@@ -9,6 +9,14 @@
 #include "Heap.hpp"
 
 class FileSystem {
+private:
+    int untitledCounter = 0;
+    HashMap<std::string, File*> files_map;
+    Heap recent_files_heap;
+    Heap biggest_trees_heap;
+    std::queue<std::string> recentFilesQueue;
+    std::string generateUntitledName();
+
 public:
     FileSystem();
     ~FileSystem();
@@ -32,15 +40,7 @@ public:
 
     void accessedFile(const std::string& filename);
 
-private:
-    int untitledCounter = 0;
-    HashMap<std::string, File*> files_map;
-    Heap recent_files_heap;
-    Heap biggest_trees_heap;
 
-    std::queue<std::string> recentFilesQueue;
-
-    std::string generateUntitledName();
 };
 
 // Constructor
