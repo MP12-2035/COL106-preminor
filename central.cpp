@@ -1,76 +1,190 @@
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include <string>
-#include "FileSystem.hpp"
+#include "file_system.hpp"
+
+fs filesystem;
+bool ART_MODE = false;
+
+void to_upper(std::string& str) {
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
+void print_header() {
+    if (ART_MODE) {
+        std::cout << "=============================\n";
+        std::cout << "   FILE SYSTEM - ART MODE   \n";
+        std::cout << "=============================\n";
+    } else {
+        std::cout << "File System Ready. Enter command:\n";
+    }
+}
+
+void print_help() {
+    std::cout << "Available commands:\n";
+    std::cout << "CREATE <filename>          - Create a new file\n";
+    std::cout << "READ <filename>            - Read file content\n";
+    std::cout << "INSERT <filename> <text>   - Append content to file\n";
+    std::cout << "UPDATE <filename> <text>   - Replace content in file\n";
+    std::cout << "SNAPSHOT <filename> <msg>  - Save snapshot with message\n";
+    std::cout << "ROLLBACK <filename> [id]   - Rollback to version\n";
+    std::cout << "HISTORY <filename>         - Show version history\n";
+    std::cout << "RECENT FILES [num]         - Show recent files\n";
+    std::cout << "BIGGEST TREES [num]        - Show files with most versions\n";
+    std::cout << "COMMAND_HISTORY           - Show past commands\n";
+    std::cout << "HELP                      - Show this menu\n";
+    std::cout << "ARTMODE ON|OFF             - Enable or disable ASCII art mode\n";
+    std::cout << "EXIT                      - Exit the program\n";
+}
 
 int main() {
-    FileSystem fs;
     std::string line;
-
-    std::cout << "Time-Travelling File System"<<endl;
-    std::cout << "Enter commands (CREATE, READ, INSERT, UPDATE, SNAPSHOT, ROLLBACK, HISTORY, RECENT FILES, BIGGEST TREES, EXIT)"<<endl;
+    print_header();
 
     while (true) {
         std::cout << "> ";
-        if (!std::getline(std::cin, line)) break;
+        std::getline(std::cin, line);
+        if (line.empty()) continue;
 
-        if (line == "EXIT") break;
+        filesystem.command_history.push(line);
 
-        std::istringstream iss(line);
-        std::string command, filename;
-        iss >> command;
+        std::stringstream ss(line);
+        std::string command;
+        ss >> command;
+        to_upper(command);
 
         if (command == "CREATE") {
-            iss >> filename;
-            fs.createFile(filename);
-        } else if (command == "READ") {
-            iss >> filename;
-            fs.readFile(filename);
-        } else if (command == "INSERT") {
-            iss >> filename;
-            std::string content;
-            std::getline(iss, content);
-            if (!content.empty() && content[0] == ' ') content.erase(0, 1);
-            fs.insertIntoFile(filename, content);
-        } else if (command == "UPDATE") {
-            iss >> filename;
-            std::string content;
-            std::getline(iss, content);
-            if (!content.empty() && content[0] == ' ') content.erase(0, 1);
-            fs.updateFile(filename, content);
-        } else if (command == "SNAPSHOT") {
-            iss >> filename;
-            std::string message;
-            std::getline(iss, message);
-            if (!message.empty() && message[0] == ' ') message.erase(0, 1);
-            fs.snapshotFile(filename, message);
-        } else if (command == "ROLLBACK") {
-            iss >> filename;
+            std::string filename;
+            if (!(ss >> filename)) {
+                std::cout << "Error: CREATE requires a filename.\n";
+                continue;
+            }
+            filesystem.create_file(filename);
+        }
+        else if (command == "READ") {
+            std::string filename;
+            if (!(ss >> filename)) {
+                std::cout << "Error: READ requires a filename.\n";
+                continue;
+            }
+            filesystem.read_file(filename);
+        }
+        else if (command == "INSERT") {
+            std::string filename, content;
+            if (!(ss >> filename)) {
+                std::cout << "Error: INSERT requires a filename and content.\n";
+                continue;
+            }
+            std::getline(ss, content);
+            if (!content.empty() && content[0] == ' ') content = content.substr(1);
+            if (content.empty()) {
+                std::cout << "Error: INSERT requires content to append.\n";
+                continue;
+            }
+            filesystem.insert_into_file(filename, content);
+        }
+        else if (command == "UPDATE") {
+            std::string filename, content;
+            if (!(ss >> filename)) {
+                std::cout << "Error: UPDATE requires a filename and content.\n";
+                continue;
+            }
+            std::getline(ss, content);
+            if (!content.empty() && content[0] == ' ') content = content.substr(1);
+            if (content.empty()) {
+                std::cout << "Error: UPDATE requires content to replace with.\n";
+                continue;
+            }
+            filesystem.update_file(filename, content);
+        }
+        else if (command == "SNAPSHOT") {
+            std::string filename, message;
+            if (!(ss >> filename)) {
+                std::cout << "Error: SNAPSHOT requires a filename.\n";
+                continue;
+            }
+            std::getline(ss, message);
+            if (!message.empty() && message[0] == ' ') message = message.substr(1);
+            filesystem.snapshot_file(filename, message);
+        }
+        else if (command == "ROLLBACK") {
+            std::string filename;
             int version_id = -1;
-            if (!(iss >> version_id)) version_id = -1; // no version specified
-            fs.rollbackFile(filename, version_id);
-        } else if (command == "HISTORY") {
-            iss >> filename;
-            fs.showHistory(filename);
-        } else if (command == "RECENT") {
-            int num;
-            iss >> num;
-            fs.recentFiles(num);
-        } else if (command == "BIGGEST") {
-            int num;
-            iss >> num;
-            fs.biggestTrees(num);
-        } else {
-            std::cout << "Unknown command\n";
+            if (!(ss >> filename)) {
+                std::cout << "Error: ROLLBACK requires a filename.\n";
+                continue;
+            }
+            if (ss >> version_id) {
+                filesystem.rb_file(filename, version_id);
+            } else {
+                filesystem.rb_file(filename);
+            }
+        }
+        else if (command == "HISTORY") {
+            std::string filename;
+            if (!(ss >> filename)) {
+                std::cout << "Error: HISTORY requires a filename.\n";
+                continue;
+            }
+            filesystem.show_history(filename);
+        }
+        else if (command == "RECENT") {
+            std::string keyword;
+            int num = 5;
+            if (!(ss >> keyword) || keyword != "FILES") {
+                std::cout << "Error: Use 'RECENT FILES [num]'.\n";
+                continue;
+            }
+            if (ss >> num) {
+                filesystem.recent_files(num);
+            } else {
+                filesystem.recent_files(5);
+            }
+        }
+        else if (command == "BIGGEST") {
+            std::string keyword;
+            int num = 5;
+            if (!(ss >> keyword) || keyword != "TREES") {
+                std::cout << "Error: Use 'BIGGEST TREES [num]'.\n";
+                continue;
+            }
+            if (ss >> num) {
+                filesystem.biggest_trees(num);
+            } else {
+                filesystem.biggest_trees(5);
+            }
+        }
+        else if (command == "COMMAND_HISTORY") {
+            filesystem.show_command_history();
+        }
+        else if (command == "HELP") {
+            print_help();
+        }
+        else if (command == "ARTMODE") {
+            std::string setting;
+            if (!(ss >> setting)) {
+                std::cout << "Error: ARTMODE requires ON or OFF.\n";
+                continue;
+            }
+            to_upper(setting);
+            if (setting == "ON") {
+                ART_MODE = true;
+                std::cout << "Art mode enabled!\n";
+            } else if (setting == "OFF") {
+                ART_MODE = false;
+                std::cout << "Art mode disabled!\n";
+            } else {
+                std::cout << "Error: ARTMODE requires ON or OFF.\n";
+            }
+        }
+        else if (command == "EXIT") {
+            std::cout << "Exiting...\n";
+            break;
+        }
+        else {
+            std::cout << "INVALID COMMAND. Type HELP for a list of commands.\n";
         }
     }
-
-    //make a queue for the most recently accessed modified files
-    //heap for files with the maximum number of versions
-//ordered by version count (max-heap by int count).
-
-    // make a list of all active files, maintain a directory, should be able to see the whole list and be able to choose
-    // 
-
     return 0;
 }
