@@ -44,16 +44,9 @@ fl::fl(const std::string& filename)
     active_version = root;
     version_map.ins(0, root);
 }
-fl::~fl() {
-    deleteTree(root);
-}
-void fl::deleteTree(tree_node* node) {
-    if (!node) return;
-    for (tree_node* child : node->children) {
-        deleteTree(child);
-    }
-    delete node;
-}
+fl::~fl(){ delete root; }  
+void fl::deleteTree(tree_node* node){ delete node; } 
+
 std::string fl::read() const {
     if (active_version)
         return active_version->content;
