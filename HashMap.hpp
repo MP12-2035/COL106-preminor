@@ -23,8 +23,8 @@ class hash_map {
         return key % capacity;
     }
     int hash_fn(const std::string& key) const {
-        const uint64_t base = 131;
-        uint64_t hash = 0;
+        const int base = 131;
+        int hash = 0;
         for (char c : key) {
             hash = hash * base + static_cast<unsigned char>(c);
         }
@@ -74,16 +74,17 @@ hm<K, V>::~hm() {
 }
 template <typename K, typename V>
 void hm<K, V>::clear() {
-    for (auto head : table) {
+    for (auto& head : table) {
         while (head) {
             Node* temp = head;
             head = head->next;
             delete temp;
         }
+        head = nullptr;
     }
-    table.clear();
     size = 0;
 }
+
 template <typename K, typename V>
 void hm<K, V>::resize() {
     if (cap_in + 1 >= int(capacities.size())) {
@@ -100,8 +101,8 @@ void hm<K, V>::resize() {
             if constexpr (std::is_same_v<K, int>) {
                 new_index = curr->key % new_capacity;
             } else if constexpr (std::is_same_v<K, std::string>) {
-                const uint64_t base = 131;
-                uint64_t hash = 0;
+                const int base = 131;
+                int hash = 0;
                 for (char c : curr->key) {
                     hash = hash * base + static_cast<unsigned char>(c);
                 }
