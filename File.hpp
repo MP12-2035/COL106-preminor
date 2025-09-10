@@ -23,7 +23,7 @@ public:
     std::string read() const;
     void ins(const std::string& content);
     void upd(const std::string& content);
-    void ss(const std::string& message);
+    void ss(const std::string& message = "");
     void rb(int version_id = -1);
     void history() ;  
     tree_node* find_ver(int version_id);
@@ -90,7 +90,7 @@ void fl::upd(const std::string& content) {
         active_version->upd_cont(content);
     }
 }
-void fl::ss(const std::string& message="") {
+void fl::ss(const std::string& message) {
     if (!active_version) {
         std::cout<<"No version selected as active."<<std::endl;
         return;
