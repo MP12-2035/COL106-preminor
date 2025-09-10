@@ -30,12 +30,12 @@ class hash_map {
         }
         return static_cast<int>(hash % capacity);
     }
-    // if unsupported type
     template<typename T>
     int hash_fn(const T&) const {
-        std::cout << "Hash function not defined for this key type." << std::endl;
+        static_assert(sizeof(T) == 0, "Hash function not defined for this key type.");
         return 0;
     }
+
     void clear();
 public:
     hash_map();
