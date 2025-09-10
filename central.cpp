@@ -4,7 +4,6 @@
 #include <string>
 #include "file_system.hpp"
 
-fs filesystem;
 bool ART_MODE = false;
 
 void to_upper(std::string& str) {
@@ -47,7 +46,7 @@ int main() {
         std::getline(std::cin, line);
         if (line.empty()) continue;
 
-        filesystem.command_history.push(line);
+        fs.command_history.push(line);
 
         std::stringstream ss(line);
         std::string command;
@@ -60,7 +59,7 @@ int main() {
                 std::cout << "Error: CREATE requires a filename.\n";
                 continue;
             }
-            filesystem.create_file(filename);
+            fs.create_file(filename);
         }
         else if (command == "READ") {
             std::string filename;
@@ -68,7 +67,7 @@ int main() {
                 std::cout << "Error: READ requires a filename.\n";
                 continue;
             }
-            filesystem.read_file(filename);
+            fs.read_file(filename);
         }
         else if (command == "INSERT") {
             std::string filename, content;
@@ -82,7 +81,7 @@ int main() {
                 std::cout << "Error: INSERT requires content to append.\n";
                 continue;
             }
-            filesystem.insert_into_file(filename, content);
+            fs.insert_into_file(filename, content);
         }
         else if (command == "UPDATE") {
             std::string filename, content;
@@ -96,7 +95,7 @@ int main() {
                 std::cout << "Error: UPDATE requires content to replace with.\n";
                 continue;
             }
-            filesystem.update_file(filename, content);
+            fs.update_file(filename, content);
         }
         else if (command == "SNAPSHOT") {
             std::string filename, message;
@@ -106,7 +105,7 @@ int main() {
             }
             std::getline(ss, message);
             if (!message.empty() && message[0] == ' ') message = message.substr(1);
-            filesystem.snapshot_file(filename, message);
+            fs.snapshot_file(filename, message);
         }
         else if (command == "ROLLBACK") {
             std::string filename;
@@ -116,9 +115,9 @@ int main() {
                 continue;
             }
             if (ss >> version_id) {
-                filesystem.rb_file(filename, version_id);
+                fs.rb_file(filename, version_id);
             } else {
-                filesystem.rb_file(filename);
+                fs.rb_file(filename);
             }
         }
         else if (command == "HISTORY") {
@@ -127,7 +126,7 @@ int main() {
                 std::cout << "Error: HISTORY requires a filename.\n";
                 continue;
             }
-            filesystem.show_history(filename);
+            fs.show_history(filename);
         }
         else if (command == "RECENT") {
             std::string keyword;
@@ -137,9 +136,9 @@ int main() {
                 continue;
             }
             if (ss >> num) {
-                filesystem.recent_files(num);
+                fs.recent_files(num);
             } else {
-                filesystem.recent_files(5);
+                fs.recent_files(5);
             }
         }
         else if (command == "BIGGEST") {
@@ -150,13 +149,13 @@ int main() {
                 continue;
             }
             if (ss >> num) {
-                filesystem.biggest_trees(num);
+                fs.biggest_trees(num);
             } else {
-                filesystem.biggest_trees(5);
+                fs.biggest_trees(5);
             }
         }
         else if (command == "COMMAND_HISTORY") {
-            filesystem.show_command_history();
+            fs.show_command_history();
         }
         else if (command == "HELP") {
             print_help();
@@ -188,3 +187,5 @@ int main() {
     }
     return 0;
 }
+
+
