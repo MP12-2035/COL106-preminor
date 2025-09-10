@@ -1,0 +1,79 @@
+ON
+
+CREATE Everest
+
+INSERT Everest Peak of the world
+
+SNAPSHOT Everest Initial snapshot.
+
+UPDATE Everest Snow-covered summit
+
+SNAPSHOT Everest Snapshot2
+
+READ Everest
+
+CREATE K2
+
+INSERT K2 Second highest mountain
+
+SNAPSHOT K2 Initial snapshot.
+
+UPDATE K2 Challenging climbs
+
+SNAPSHOT K2 Snapshot2
+
+READ K2
+
+CREATE Kangchenjunga
+
+INSERT Kangchenjunga Beautiful peak
+
+SNAPSHOT Kangchenjunga Initial snapshot.
+
+READ Everest
+
+READ K2
+
+READ Kangchenjunga
+
+ROLLBACK Everest 0
+
+UPDATE Everest Legendary climb
+
+SNAPSHOT Everest Snap3
+
+ROLLBACK K2 1
+
+INSERT K2 Dangerous weather!
+
+SNAPSHOT K2 Snap3
+
+TREE Everest
+
+TREE K2
+
+TREE Kangchenjunga
+
+ARTMODE ON
+
+UPDATE Kangchenjunga Sacred mountain
+
+SNAPSHOT Kangchenjunga Snap2
+
+READ Kangchenjunga
+
+ARTMODE OFF
+
+COMMAND_HISTORY
+
+CREATE RUJ
+
+UPDATE RUJ cry
+
+SNAPSHOT RUJ no
+
+RENAME RUJ SAM
+
+TREE SAM
+
+EXIT

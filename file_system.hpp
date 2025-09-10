@@ -10,11 +10,8 @@
 
 class file_system {
 private:
-    int untitled_cnt = 0;
-    hash_map<std::string, fl*> files_map;
     hp biggest_trees_h;
     std::stack<std::string> recent_files_s;
-    
     int op_count = 0;
 
     std::string gen_untitled_name() {
@@ -27,31 +24,43 @@ private:
         }
     }
 
-public:
-    std::stack<std::string> command_history;
-    
-    file_system() {}
-    ~file_system() {
-        files_map.iterate([this](const std::string& key, fl* file_ptr) {
-            delete file_ptr;
-        });
+    void print_node(tree_node* node, const std::string& prefix = "", bool is_last = true, bool art_mode = false) {
+        if (!node) return;
+
+        std::cout << prefix << (is_last ? "└─ " : "├─ ") << "V" << node->version_id;
+        if (!node->message.empty()) std::cout << " : \"" << node->message << "\"";
+        std::cout << std::endl;
+
+        for (size_t i = 0; i < node->children.size(); ++i) {
+            print_node(node->children[i], prefix + (is_last ? "    " : "│   "), i == node->children.size() - 1, art_mode);
+        }
     }
 
-    void create_file(const std::string& filename) {
+public:
+    int untitled_cnt = 0;
+    hash_map<std::string, fl*> files_map;
+    std::stack<std::string> command_history;
+
+    file_system() {}
+    ~file_system() {}
+
+    std::string create_file(const std::string& filename) {
         fl* existing_file = nullptr;
         if (files_map.find(filename, existing_file)) {
             std::cout << "File '" << filename << "' already exists." << std::endl;
-            return;
+            return "";
         }
         fl* new_file = new fl(filename);
         files_map.ins(filename, new_file);
         biggest_trees_h.ins(filename, new_file->total_versions);
         accessed_file(filename);
         remind_snapshot();
+        return filename;
     }
 
-    void create_file() {
-        create_file(gen_untitled_name());
+    std::string create_file() {
+        std::string untitled_name = gen_untitled_name();
+        return create_file(untitled_name);
     }
 
     bool rnm_file(const std::string& old_n, const std::string& new_n) {
@@ -159,13 +168,6 @@ public:
         remind_snapshot();
     }
 
-    void list_files() {
-        files_map.iterate([](const std::string& name, fl* file) {
-            std::cout << "File: " << name << std::endl;
-        });
-        remind_snapshot();
-    }
-
     void accessed_file(const std::string& filename) {
         recent_files_s.push(filename);
     }
@@ -177,6 +179,38 @@ public:
             temp.pop();
         }
     }
+
+    void print_version_tree(const std::string& filename, bool use_art = false) {
+        fl* file_ptr = nullptr;
+        if (!files_map.find(filename, file_ptr) || !file_ptr) {
+            std::cout << "File '" << filename << "' not found.\n";
+            return;
+        }
+        print_node(file_ptr->root, "", true, use_art);
+    }
+
+    void switch_version(const std::string& filename, int version_id) {
+        fl* file = nullptr;
+        if (!files_map.find(filename, file)) {
+            std::cout << "File '" << filename << "' not found." << std::endl;
+            return;
+        }
+        if (file->switch_version(version_id)) {
+            std::cout << "Switched to version " << version_id << " of file '" << filename << "'." << std::endl;
+            accessed_file(filename);
+            remind_snapshot();
+        }
+    }
+
+    void show_active_version(const std::string& filename) {
+        fl* file = nullptr;
+        if (!files_map.find(filename, file)) {
+            std::cout << "File '" << filename << "' not found." << std::endl;
+            return;
+        }
+        file->print_active_version_info();
+    }
+
 };
 
 using fs = file_system;

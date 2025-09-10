@@ -48,8 +48,7 @@ using tn = tree_node;
 
 // Implementation
 tn::tree_node(int id, const std::string& cont, tree_node* par)
-    : version_id(id), content(cont), parent(par), message(""), ss_ts(0),
-      created_ts(std::time(nullptr)), last_mod_ts(created_ts) {}
+    : version_id(id) , content(cont) , message("") , created_ts(std::time(nullptr)) , last_mod_ts(created_ts) , ss_ts(0) , parent(par){}
 
 tn::tree_node(int id, const std::string& cont)
     : tree_node(id, cont, nullptr) {}

@@ -1,0 +1,514 @@
+2708_samridhi@Samridhis-MacBook-Air ~ % cd Desktop/TIME_TRAVELLER
+2708_samridhi@Samridhis-MacBook-Air TIME_TRAVELLER % ls
+README.txt		file.hpp		main.cpp
+art.hpp			file_system.hpp		sample_ip1.txt
+commands.hpp		hash_map.hpp		tree_node.hpp
+compile_and_run.sh	heap.hpp
+2708_samridhi@Samridhis-MacBook-Air TIME_TRAVELLER % ./compile_and_run.sh
+Compilation successful. Running the program...
+-----------------------------------------
+[*]Do you want to enable Art Mode? (Enter ON/OFF)
+on
+   .--.
+ .-(    ).             _.__            .--.
+(___.__)__)       .--./    `        .-(    ).
+                /              |  (___.__)__)
+  _    _      _             \ .-- . /
+ | |  | |    | |          __/       \__
+ | |  | | ___| | ___ ___  _ __ ___   ___
+ | |/\| |/ _ \ |/ __/ _ \| '_ ` _ \ / _ \
+ \  /\  /  __/ | (_| (_) | | | | | |  __/
+  \/  \/ \___|_|\___\___/|_| |_| |_|\___|
+____________[ ART MODE IS ON ]_____________
+        .--.            .--.
+     .-(    ).      .-(    ).
+    (___.__)__)    (___.__)__)
+-----------------------------------------
+[*]File System Ready.
+[*]Note: all programs must end with 'EXIT'.
+-----------------------------------------
+create ruj
+'ruj' has been created.
+insert ruj ice
+snapshot ruj ice
+insert ruj cream
+snapshot ruj cream
+update ruj chocolate
+snaphsot ruj chocolate
+
+|| Unknown command: SNAPHSOT||
+snapshot ruj chocolate
+insert ruj munch
+rollback ruj 1
+update ruj namkeen
+Reminder: Consider taking a snapshot after important changes.
+snapshot ruj namkeen
+tree ruj
+-----------------------------------------
+VERSION TREE of 'ruj' :
+└─    /`````\
+     |  V0   |
+      \_____/
+    "Initial Snapshot"
+       |
+    └─    /`````\
+         |  V1   |
+          \_____/
+        "ice"
+           |
+        ├─    /`````\
+        │    |  V2   |
+        │     \_____/
+        │   "cream"
+        │      |
+        │   └─    /`````\
+        │        |  V3   |
+        │         \_____/
+        │       "chocolate"
+        │          |
+        │       └─    /`````\
+        │            |  V4   |
+        │             \_____/
+        └─    /`````\
+             |  V5   |
+              \_____/
+            "namkeen"
+insert ruj haldiram
+snapshot ruj haldiram
+rollback ruj 2
+Version 2 is not an ancestor of current version. Rollback denied.
+switch ruj 2
+Switched to version 2 of file 'ruj'.
+read ruj
+'ruj' : icecream
+update ruj camilla cabello
+snapshot ruj camilla cabello
+artmode off
+tree ruj
+-----------------------------------------
+VERSION TREE of 'ruj' :
+└─ V0 : "Initial Snapshot"
+    └─ V1 : "ice"
+        ├─ V2 : "cream"
+        │   ├─ V3 : "chocolate"
+        │   │   └─ V4
+        │   └─ V7 : "camilla cabello"
+        └─ V5 : "namkeen"
+            └─ V6 : "haldiram"
+rollback ruj 3
+Version 3 is not an ancestor of current version. Rollback denied.
+current_version ruj
+Active Version ID: 7
+Message: camilla cabello
+Created at: Wed Sep 10 23:58:14 2025
+rename ruj sam
+File renamed from 'ruj' to 'sam'
+Reminder: Consider taking a snapshot after important changes.
+insert sam havana
+snapshot sam havana
+rollback sam 2
+current_version sam
+Active Version ID: 2
+Message: cream
+Created at: Wed Sep 10 23:55:12 2025
+read sam
+'sam' : icecream
+tree sam
+-----------------------------------------
+VERSION TREE of 'sam' :
+└─ V0 : "Initial Snapshot"
+    └─ V1 : "ice"
+        ├─ V2 : "cream"
+        │   ├─ V3 : "chocolate"
+        │   │   └─ V4
+        │   └─ V7 : "camilla cabello"
+        │       └─ V8 : "havana"
+        └─ V5 : "namkeen"
+            └─ V6 : "haldiram"
+command_history
+command_history
+tree sam
+read sam
+current_version sam
+rollback sam 2
+snapshot sam havana
+insert sam havana
+rename ruj sam
+current_version ruj
+rollback ruj 3
+tree ruj
+artmode off
+snapshot ruj camilla cabello
+update ruj camilla cabello
+read ruj
+switch ruj 2
+rollback ruj 2
+snapshot ruj haldiram
+insert ruj haldiram
+tree ruj
+snapshot ruj namkeen
+update ruj namkeen
+rollback ruj 1
+insert ruj munch
+snapshot ruj chocolate
+snaphsot ruj chocolate
+update ruj chocolate
+snapshot ruj cream
+insert ruj cream
+snapshot ruj ice
+insert ruj ice
+create ruj
+recent
+sam
+sam
+sam
+sam
+ruj
+recent 10
+sam
+sam
+sam
+sam
+ruj
+ruj
+ruj
+ruj
+ruj
+ruj
+biggest
+sam : 9
+create
+'untitled1' has been created.
+rename untitled1 ruj
+File renamed from 'untitled1' to 'ruj'
+insert run piano
+File 'run' not found.
+snapshot ruj piano
+Reminder: Consider taking a snapshot after important changes.
+history ruj
+-----------------------------------------
+History of 'ruj' :
+Version ID: 0 | Message: piano | Updated: Thu Sep 11 00:01:24 2025
+
+-----------------------------------------
+insert ruj guitar
+snapshot ruj guitar
+update ruj camera
+snapshot ruj camera
+tree ruj
+-----------------------------------------
+VERSION TREE of 'ruj' :
+└─ V0 : "piano"
+    └─ V1 : "guitar"
+        └─ V2 : "camera"
+rollback ruj
+insert ruj sing
+snapshot ruj sing
+current_version ruj
+Active Version ID: 3
+Message: sing
+Created at: Thu Sep 11 00:02:59 2025
+tree ruj
+-----------------------------------------
+VERSION TREE of 'ruj' :
+└─ V0 : "piano"
+    └─ V1 : "guitar"
+        ├─ V2 : "camera"
+        └─ V3 : "sing"
+biggest
+sam : 9
+ruj : 4
+recent 10
+ruj
+ruj
+ruj
+ruj
+ruj
+ruj
+ruj
+ruj
+untitled1
+sam
+Reminder: Consider taking a snapshot after important changes.
+switch sam 3
+Switched to version 3 of file 'sam'.
+read sam
+'sam' : chocolate
+switch ruj 4
+Version 4 not found.
+switch ruj 2
+Switched to version 2 of file 'ruj'.
+read ruj
+'ruj' : camera
+switch sam 8
+Switched to version 8 of file 'sam'.
+history sam
+-----------------------------------------
+History of 'sam' :
+Version ID: 0 | Message: Initial Snapshot | Updated: Wed Sep 10 23:54:47 2025
+
+Version ID: 1 | Message: ice | Updated: Wed Sep 10 23:54:57 2025
+
+Version ID: 2 | Message: cream | Updated: Wed Sep 10 23:55:12 2025
+
+Version ID: 7 | Message: camilla cabello | Updated: Wed Sep 10 23:58:14 2025
+
+Version ID: 8 | Message: havana | Updated: Wed Sep 10 23:59:38 2025
+
+-----------------------------------------
+switch ruj 3
+Switched to version 3 of file 'ruj'.
+history ruj
+-----------------------------------------
+History of 'ruj' :
+Version ID: 0 | Message: piano | Updated: Thu Sep 11 00:01:24 2025
+
+Version ID: 1 | Message: guitar | Updated: Thu Sep 11 00:02:18 2025
+
+Version ID: 3 | Message: sing | Updated: Thu Sep 11 00:02:59 2025
+
+-----------------------------------------
+switch ruj 0
+Switched to version 0 of file 'ruj'.
+update ruj jee
+Reminder: Consider taking a snapshot after important changes.
+snapshot ruj jee
+tree ruj
+-----------------------------------------
+VERSION TREE of 'ruj' :
+└─ V0 : "piano"
+    ├─ V1 : "guitar"
+    │   ├─ V2 : "camera"
+    │   └─ V3 : "sing"
+    └─ V4 : "jee"
+artmode on
+   .--.
+ .-(    ).             _.__            .--.
+(___.__)__)       .--./    `        .-(    ).
+                /              |  (___.__)__)
+  _    _      _             \ .-- . /
+ | |  | |    | |          __/       \__
+ | |  | | ___| | ___ ___  _ __ ___   ___
+ | |/\| |/ _ \ |/ __/ _ \| '_ ` _ \ / _ \
+ \  /\  /  __/ | (_| (_) | | | | | |  __/
+  \/  \/ \___|_|\___\___/|_| |_| |_|\___|
+____________[ ART MODE IS ON ]_____________
+        .--.            .--.
+     .-(    ).      .-(    ).
+    (___.__)__)    (___.__)__)
+tree ruj
+-----------------------------------------
+VERSION TREE of 'ruj' :
+└─    /`````\
+     |  V0   |
+      \_____/
+    "piano"
+       |
+    ├─    /`````\
+    │    |  V1   |
+    │     \_____/
+    │   "guitar"
+    │      |
+    │   ├─    /`````\
+    │   │    |  V2   |
+    │   │     \_____/
+    │   │   "camera"
+    │   └─    /`````\
+    │        |  V3   |
+    │         \_____/
+    │       "sing"
+    └─    /`````\
+         |  V4   |
+          \_____/
+        "jee"
+RENAME ruj RUJUTA
+File renamed from 'ruj' to 'RUJUTA'
+insert rujuta life
+File 'rujuta' not found.
+tree RUJUTA
+-----------------------------------------
+VERSION TREE of 'RUJUTA' :
+└─    /`````\
+     |  V0   |
+      \_____/
+    "piano"
+       |
+    ├─    /`````\
+    │    |  V1   |
+    │     \_____/
+    │   "guitar"
+    │      |
+    │   ├─    /`````\
+    │   │    |  V2   |
+    │   │     \_____/
+    │   │   "camera"
+    │   └─    /`````\
+    │        |  V3   |
+    │         \_____/
+    │       "sing"
+    └─    /`````\
+         |  V4   |
+          \_____/
+        "jee"
+TREE sam
+-----------------------------------------
+VERSION TREE of 'sam' :
+└─    /`````\
+     |  V0   |
+      \_____/
+    "Initial Snapshot"
+       |
+    └─    /`````\
+         |  V1   |
+          \_____/
+        "ice"
+           |
+        ├─    /`````\
+        │    |  V2   |
+        │     \_____/
+        │   "cream"
+        │      |
+        │   ├─    /`````\
+        │   │    |  V3   |
+        │   │     \_____/
+        │   │   "chocolate"
+        │   │      |
+        │   │   └─    /`````\
+        │   │        |  V4   |
+        │   │         \_____/
+        │   └─    /`````\
+        │        |  V7   |
+        │         \_____/
+        │       "camilla cabello"
+        │          |
+        │       └─    /`````\
+        │            |  V8   |
+        │             \_____/
+        │           "havana"
+        └─    /`````\
+             |  V5   |
+              \_____/
+            "namkeen"
+               |
+            └─    /`````\
+                 |  V6   |
+                  \_____/
+                "haldiram"
+switch sam 4
+Switched to version 4 of file 'sam'.
+read sam
+'sam' : chocolatemunch
+snapshot sam chocolatemuch
+tree sam
+-----------------------------------------
+VERSION TREE of 'sam' :
+└─    /`````\
+     |  V0   |
+      \_____/
+    "Initial Snapshot"
+       |
+    └─    /`````\
+         |  V1   |
+          \_____/
+        "ice"
+           |
+        ├─    /`````\
+        │    |  V2   |
+        │     \_____/
+        │   "cream"
+        │      |
+        │   ├─    /`````\
+        │   │    |  V3   |
+        │   │     \_____/
+        │   │   "chocolate"
+        │   │      |
+        │   │   └─    /`````\
+        │   │        |  V4   |
+        │   │         \_____/
+        │   │       "chocolatemuch"
+        │   └─    /`````\
+        │        |  V7   |
+        │         \_____/
+        │       "camilla cabello"
+        │          |
+        │       └─    /`````\
+        │            |  V8   |
+        │             \_____/
+        │           "havana"
+        └─    /`````\
+             |  V5   |
+              \_____/
+            "namkeen"
+               |
+            └─    /`````\
+                 |  V6   |
+                  \_____/
+                "haldiram"
+biggest
+sam : 9
+RUJUTA : 5
+recent
+sam
+sam
+sam
+ruj
+ruj
+INSERT RUJUTA music
+snaPShOT RUJUTA music
+tree RUJUTA
+-----------------------------------------
+VERSION TREE of 'RUJUTA' :
+└─    /`````\
+     |  V0   |
+      \_____/
+    "piano"
+       |
+    ├─    /`````\
+    │    |  V1   |
+    │     \_____/
+    │   "guitar"
+    │      |
+    │   ├─    /`````\
+    │   │    |  V2   |
+    │   │     \_____/
+    │   │   "camera"
+    │   └─    /`````\
+    │        |  V3   |
+    │         \_____/
+    │       "sing"
+    └─    /`````\
+         |  V4   |
+          \_____/
+        "jee"
+           |
+        └─    /`````\
+             |  V5   |
+              \_____/
+            "music"
+recent
+RUJUTA
+RUJUTA
+sam
+sam
+sam
+Reminder: Consider taking a snapshot after important changes.
+exit
+-----------------------------------------
+
+|| Exiting...||
+ .----------------.  .----------------.  .----------------.  .----------------.
+| .--------------. || .--------------. || .--------------. || .--------------. |
+| |   ______     | || |  ____  ____  | || |  _________   | || |              | |
+| |  |_   _ \    | || | |_  _||_  _| | || | |_   ___  |  | || |      _       | |
+| |    | |_) |   | || |   \ \  / /   | || |   | |_  \_|  | || |     | |      | |
+| |    |  __'.   | || |    \ \/ /    | || |   |  _|  _   | || |     | |      | |
+| |   _| |__) |  | || |    _|  |_    | || |  _| |___/ |  | || |     | |      | |
+| |  |_______/   | || |   |______|   | || | |_________|  | || |     |_|      | |
+| |              | || |              | || |              | || |     (_)      | |
+| '--------------' || '--------------' || '--------------' || '--------------' |
+ '----------------'  '----------------'  '----------------'  '----------------'
+                               _.-=-._     .-,
+                             .' 0 )     "-,.' /
+♥ ︎Was a joy working with you ︎(    )      _.  <
+                              `=._)___.='  `._\
+2708_samridhi@Samridhis-MacBook-Air TIME_TRAVELLER %

@@ -32,10 +32,10 @@ private:
 using hp = heap;
 
 void heap::swap_els(int i, int j) {
-    std::swap(elements[i], elements[j]);
-
     key_to_idx.rm(elements[i].first);
     key_to_idx.rm(elements[j].first);
+
+    std::swap(elements[i], elements[j]);
 
     key_to_idx.ins(elements[i].first, i);
     key_to_idx.ins(elements[j].first, j);
@@ -79,7 +79,7 @@ void heap::rm(const std::string& key) {
     if (idx != last) swap_els(idx, last);
     key_to_idx.rm(elements.back().first);
     elements.pop_back();
-    if (idx < elements.size()) { heapify_up(idx); heapify_down(idx); }
+    if (idx < (int)elements.size()) { heapify_up(idx); heapify_down(idx); }
 }
 
 void heap::upd(const std::string& key, int new_val) {
@@ -111,8 +111,8 @@ void heap::print_top(int num) const {
         while (true) {
             int largest = idx;
             int l = 2*idx + 1, r = 2*idx + 2;
-            if (l < temp.size() && temp[l].second > temp[largest].second) largest = l;
-            if (r < temp.size() && temp[r].second > temp[largest].second) largest = r;
+            if (l < (int)temp.size() && temp[l].second > temp[largest].second) largest = l;
+            if (r < (int)temp.size() && temp[r].second > temp[largest].second) largest = r;
             if (largest != idx) { temp_swap(temp, idx, largest); idx = largest; }
             else break;
         }

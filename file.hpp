@@ -1,15 +1,16 @@
 #ifndef FILE_HPP
 #define FILE_HPP
+
 #include <string>
-#include <iostream>  
+#include <iostream>
 #include <vector>
-#include <queue>
 #include "tree_node.hpp"
 #include "hash_map.hpp"
 
 class file {
-friend class tree_node;
-friend class file_system;
+    friend class tree_node;
+    friend class file_system;
+
 private:
     std::string name;
     tree_node* root;
@@ -23,6 +24,7 @@ private:
 public:
     file(const std::string& filename);
     ~file();
+
     std::string read() const;
     void ins(const std::string& content);
     void upd(const std::string& content);
@@ -32,16 +34,16 @@ public:
     tree_node* find_ver(int version_id);
     const std::string& get_name() const;
     void rnm(const std::string& newName);
-    std::vector<tree_node*> get_leaf_vers() const;
     void print(const std::vector<tree_node*>& nodes) const;
-    void tag(const std::string& tag);
+    void print_active_version_info() const;
+    bool switch_version(int version_id);
 };
 
 using fl = file;
 
 // Constructor & Destructor
-file::file(const std::string& filename) 
-    : name(filename), total_versions(1) 
+file::file(const std::string& filename)
+    : name(filename), total_versions(1)
 {
     root = new tree_node(0, "", nullptr);
     root->upd_msg("Initial Snapshot");
@@ -49,8 +51,14 @@ file::file(const std::string& filename)
     active_version = root;
     version_map.ins(0, root);
 }
-file::~file() { delete root; }
-void fl::deleteTree(tree_node* node) { delete node; }
+
+file::~file() {
+    delete root;
+}
+
+void fl::deleteTree(tree_node* node) {
+    delete node;
+}
 
 // File operations
 
@@ -59,7 +67,8 @@ void fl::rnm(const std::string& newName) {
 }
 
 std::string fl::read() const {
-    if (active_version) return active_version->content;
+    if (active_version)
+        return active_version->content;
     return "";
 }
 
@@ -140,23 +149,28 @@ void fl::history() {
     std::vector<tree_node*> path = get_vp(active_version->version_id);
     std::vector<tree_node*> snapshots;
     for (auto node : path) {
-        if (node->is_ss()) snapshots.push_back(node);
+        if (node->is_ss())
+            snapshots.push_back(node);
     }
     print(snapshots);
 }
 
-const std::string& fl::get_name() const { return name; }
+const std::string& fl::get_name() const {
+    return name;
+}
 
 tree_node* fl::find_ver(int version_id) {
     tree_node* node = nullptr;
-    if (version_map.find(version_id, node)) return node;
+    if (version_map.find(version_id, node))
+        return node;
     std::cout << "NOT FOUND" << std::endl;
     return nullptr;
 }
 
 std::vector<tree_node*> fl::get_vp(int version_id) {
     tree_node* node = find_ver(version_id);
-    if (!node) return {};
+    if (!node)
+        return {};
     return node->rootpath();
 }
 
@@ -170,29 +184,26 @@ void fl::print(const std::vector<tree_node*>& nodes) const {
     }
 }
 
-std::vector<tree_node*> fl::get_leaf_vers() const {
-    std::vector<tree_node*> leaves;
-    if (!root) return leaves;
-    std::queue<tree_node*> q;
-    q.push(root);
-    while (!q.empty()) {
-        tree_node* current = q.front();
-        q.pop();
-        if (current->child_cnt() == 0) {
-            leaves.push_back(current);
-        } else {
-            for (tree_node* child : current->children) {
-                q.push(child);
-            }
-        }
+void fl::print_active_version_info() const {
+    if (!active_version) {
+        std::cout << "No active version selected." << std::endl;
+        return;
     }
-    return leaves;
+    std::cout << "Active Version ID: " << active_version->version_id << std::endl;
+    if (!active_version->message.empty()) {
+        std::cout << "Message: " << active_version->message << std::endl;
+    }
+    std::cout << "Created at: " << std::ctime(&active_version->created_ts);
 }
 
-void fl::tag(const std::string& tag) {
-    version_map.iterate([&tag](const int& ver_id, tree_node*& node) {
-        if (node) node->upd_msg(node->message + " " + tag);
-    });
+bool fl::switch_version(int version_id) {
+    tree_node* target = nullptr;
+    if (!version_map.find(version_id, target) || !target) {
+        std::cout << "Version " << version_id << " not found." << std::endl;
+        return false;
+    }
+    active_version = target;
+    return true;
 }
 
 #endif // FILE_HPP
