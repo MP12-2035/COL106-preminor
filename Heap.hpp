@@ -98,10 +98,17 @@ void hp::upd(const std::string& key, int new_val) {
 }
 void hp::print_top(int num) const {
     if (num <= 0) return;
-    int count = 0;
-    for (auto& elem : elements) {
-        std::cout << "Key: " << elem.first << ", Value: " << elem.second << std::endl;
-        if (++count >= num) break;
+    std::vector<std::pair<std::string, int>> temp_elements = elements;
+    auto cmp = [](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+        return a.second < b.second;
+    };
+    std::priority_queue<std::pair<std::string, int>, std::vector<std::pair<std::string, int>>, decltype(cmp)>
+        temp_heap(cmp, temp_elements);
+    for (int i = 0; i < num && !temp_heap.empty(); ++i) {
+        auto top = temp_heap.top();
+        temp_heap.pop();
+        std::cout << "Key: " << top.first << ", Value: " << top.second << std::endl;
     }
 }
+
 #endif // HEAP_HPP
