@@ -18,7 +18,7 @@ class hash_map {
     const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009};
     int cap_in;
     float max_load = 0.8f;
-    // Hash functions: overload for int and string
+    
     int hash_fn(const int& key) const {
         return key % capacity;
     }
