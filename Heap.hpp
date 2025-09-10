@@ -33,8 +33,10 @@ using hp = heap;
 
 void heap::swap_els(int i, int j) {
     std::swap(elements[i], elements[j]);
+
     key_to_idx.rm(elements[i].first);
     key_to_idx.rm(elements[j].first);
+
     key_to_idx.ins(elements[i].first, i);
     key_to_idx.ins(elements[j].first, j);
 }
@@ -45,123 +47,74 @@ void heap::heapify_up(int idx) {
         if (elements[idx].second > elements[p].second) {
             swap_els(idx, p);
             idx = p;
-        } else {
-            break;
-        }
+        } else break;
     }
 }
 
 void heap::heapify_down(int idx) {
-    int size = (int)elements.size();
+    int n = elements.size();
     while (true) {
         int largest = idx;
-        int left = left_child(idx);
-        int right = right_child(idx);
-
-        if (left < size && elements[left].second > elements[largest].second)
-            largest = left;
-        if (right < size && elements[right].second > elements[largest].second)
-            largest = right;
-
-        if (largest != idx) {
-            swap_els(idx, largest);
-            idx = largest;
-        } else {
-            break;
-        }
+        int l = left_child(idx), r = right_child(idx);
+        if (l < n && elements[l].second > elements[largest].second) largest = l;
+        if (r < n && elements[r].second > elements[largest].second) largest = r;
+        if (largest != idx) { swap_els(idx, largest); idx = largest; }
+        else break;
     }
 }
 
 void heap::ins(const std::string& key, int value) {
-    int dummy_idx;
-    if (key_to_idx.find(key, dummy_idx)) {
-        upd(key, value);
-        return;
-    }
+    int idx;
+    if (key_to_idx.find(key, idx)) { upd(key, value); return; }
     elements.push_back({key, value});
-    int idx = (int)elements.size() - 1;
-    key_to_idx.ins(key, idx);
-    heapify_up(idx);
+    int new_idx = elements.size() - 1;
+    key_to_idx.ins(key, new_idx);
+    heapify_up(new_idx);
 }
 
 void heap::rm(const std::string& key) {
-    int idx = -1;
+    int idx;
     if (!key_to_idx.find(key, idx)) return;
-
-    int last_idx = (int)elements.size() - 1;
-    if (idx != last_idx) {
-        swap_els(idx, last_idx);
-    }
+    int last = elements.size() - 1;
+    if (idx != last) swap_els(idx, last);
+    key_to_idx.rm(elements.back().first);
     elements.pop_back();
-    key_to_idx.rm(key);
-
-    if (idx < (int)elements.size()) {
-        heapify_up(idx);
-        heapify_down(idx);
-    }
+    if (idx < elements.size()) { heapify_up(idx); heapify_down(idx); }
 }
 
 void heap::upd(const std::string& key, int new_val) {
-    int idx = -1;
+    int idx;
     if (!key_to_idx.find(key, idx)) return;
-
     int old_val = elements[idx].second;
     elements[idx].second = new_val;
-
-    if (new_val > old_val) {
-        heapify_up(idx);
-    } else if (new_val < old_val) {
-        heapify_down(idx);
-    }
+    if (new_val > old_val) heapify_up(idx);
+    else if (new_val < old_val) heapify_down(idx);
 }
 
 void heap::print_top(int num) const {
-    int n = std::min(num, (int)elements.size());
-    if (n == 0) {
-        std::cout << "Heap is empty.\n";
-        return;
-    }
+    if (num <= 0 || elements.empty()) { std::cout << "Heap is empty.\n"; return; }
 
-    std::vector<std::pair<std::string, int>> temp_elements = elements;
-    hash_map<std::string, int> temp_map;
-    for (size_t i = 0; i < temp_elements.size(); ++i)
-        temp_map.ins(temp_elements[i].first, i);
+    // Use a temporary min-heap index list (no full copy)
+    std::vector<std::pair<std::string,int>> temp = elements;
+    auto temp_swap = [](std::vector<std::pair<std::string,int>>& arr, int i, int j){
+        std::swap(arr[i], arr[j]);
+    };
 
-    std::cout << "Top " << n << " elements:\n";
+    int n = std::min(num, (int)temp.size());
     for (int i = 0; i < n; ++i) {
-        if (temp_elements.empty()) break;
+        std::cout << temp[0].first << " : " << temp[0].second << "\n";
+        int last = temp.size() - 1;
+        temp_swap(temp, 0, last);
+        temp.pop_back();
 
-        auto top = temp_elements[0];
-        std::cout << top.first << " : " << top.second << "\n";
-
-        int last_idx = (int)temp_elements.size() - 1;
-        if (last_idx > 0) {
-            std::swap(temp_elements[0], temp_elements[last_idx]);
-            temp_map.rm(temp_elements[last_idx].first);
-            temp_elements.pop_back();
-
-            int idx = 0;
-            int size = (int)temp_elements.size();
-            while (true) {
-                int largest = idx;
-                int left = 2 * idx + 1;
-                int right = 2 * idx + 2;
-
-                if (left < size && temp_elements[left].second > temp_elements[largest].second)
-                    largest = left;
-                if (right < size && temp_elements[right].second > temp_elements[largest].second)
-                    largest = right;
-
-                if (largest != idx) {
-                    std::swap(temp_elements[idx], temp_elements[largest]);
-                    idx = largest;
-                } else {
-                    break;
-                }
-            }
-        } else {
-            temp_map.rm(temp_elements[0].first);
-            temp_elements.pop_back();
+        int idx = 0;
+        while (true) {
+            int largest = idx;
+            int l = 2*idx + 1, r = 2*idx + 2;
+            if (l < temp.size() && temp[l].second > temp[largest].second) largest = l;
+            if (r < temp.size() && temp[r].second > temp[largest].second) largest = r;
+            if (largest != idx) { temp_swap(temp, idx, largest); idx = largest; }
+            else break;
         }
     }
 }
