@@ -1,62 +1,50 @@
-#ifndef HASHMAP_HPP
-#define HASHMAP_HPP
-
+#ifndef HASH_MAP_HPP
+#define HASH_MAP_HPP
 #include <vector>
 #include <string>
 #include <iostream>
-#include "TreeNode.hpp"
-
+#include "tree_node.hpp"
 template <typename K, typename V>
-class HashMap {
+class hash_map {
     struct Node {
         K key;
         V value;
         Node* next;
         Node(const K& k, const V& v) : key(k), value(v), next(nullptr) {}
     };
-
     std::vector<Node*> table;
     int size;
     int capacity;
     const std::vector<int> capacities = {7, 17, 37, 79, 163, 331, 673, 1009};
-    int capacityIndex;
-    float maxLoad = 0.8f;
-
+    int cap_in;
+    float max_load = 0.8f;
     // Hash functions: overload for int and string
-    int hashFunction(const int& key) const {
+    int hash_fn(const int& key) const {
         return key % capacity;
     }
-
-    int hashFunction(const std::string& key) const {
-        const int p = 31;
-        int hash = 0;
-        int power = 1;
+    int hash_fn(const std::string& key) const {
+        const uint64_t base = 131;
+        uint64_t hash = 0;
         for (char c : key) {
-            hash = (hash + (c - 'a' + 1) * power) % capacity;
-            power = (power * p) % capacity;
+            hash = hash * base + static_cast<unsigned char>(c);
         }
-        return hash;
+        return static_cast<int>(hash % capacity);
     }
-
     // if unsupported type
     template<typename T>
-    int hashFunction(const T&) const {
-        std::cout<<"Hash function not defined for this key type.")<<std::endl;
+    int hash_fn(const T&) const {
+        std::cout << "Hash function not defined for this key type." << std::endl;
         return 0;
     }
-
     void clear();
-
 public:
-    HashMap();
-    ~HashMap();
-
+    hash_map();
+    ~hash_map();
     void resize();
-    void insert(const K& key, const V& value);
+    void ins(const K& key, const V& value);
     bool find(const K& key, V& value_out) const;
-    bool remove(const K& key);
-    float getLoadFactor() const { return static_cast<float>(size) / capacity; }
-
+    bool rm(const K& key);
+    float get_load_factor() const { return static_cast<float>(size) / capacity; }
     template <typename Func>
     void iterate(Func func) {
         for (int i = 0; i < capacity; ++i) {
@@ -67,30 +55,25 @@ public:
             }
         }
     }
-
     void iterate() {
         iterate([](const K& key, V&) {
             std::cout << "Key: " << key << std::endl;
         });
     }
 };
+using hm = hash_map;
 
-// Constructor
 template <typename K, typename V>
-HashMap<K, V>::HashMap() : size(0), capacityIndex(0) {
-    capacity = capacities[capacityIndex];
+hm<K, V>::hm() : size(0), cap_in(0) {
+    capacity = capacities[cap_in];
     table.resize(capacity, nullptr);
 }
-
-// Destructor
 template <typename K, typename V>
-HashMap<K, V>::~HashMap() {
+hm<K, V>::~hm() {
     clear();
 }
-
-// Clear all nodes
 template <typename K, typename V>
-void HashMap<K, V>::clear() {
+void hm<K, V>::clear() {
     for (auto head : table) {
         while (head) {
             Node* temp = head;
@@ -101,48 +84,40 @@ void HashMap<K, V>::clear() {
     table.clear();
     size = 0;
 }
-
-// Resize and rehash all keys
 template <typename K, typename V>
-void HashMap<K, V>::resize() {
-    if (capacityIndex + 1 >= int(capacities.size())) {
+void hm<K, V>::resize() {
+    if (cap_in + 1 >= int(capacities.size())) {
         std::cout << "Max capacity reached, cannot resize further." << std::endl;
         return;
     }
-    int newCapacity = capacities[++capacityIndex];
-    std::vector<Node*> newTable(newCapacity, nullptr);
-
+    int new_capacity = capacities[++cap_in];
+    std::vector<Node*> new_table(new_capacity, nullptr);
     for (int i = 0; i < capacity; ++i) {
         Node* curr = table[i];
         while (curr) {
-            Node* nextNode = curr->next;
-            // Use correct hashFunction depending on key type:
-            int newIndex = 0;
+            Node* next_node = curr->next;
+            int new_index = 0;
             if constexpr (std::is_same_v<K, int>) {
-                newIndex = curr->key % newCapacity;
+                new_index = curr->key % new_capacity;
             } else if constexpr (std::is_same_v<K, std::string>) {
-                const int p = 31;
-                int hash = 0;
-                int power = 1;
+                const uint64_t base = 131;
+                uint64_t hash = 0;
                 for (char c : curr->key) {
-                    hash = (hash + (c - 'a' + 1) * power) % newCapacity;
-                    power = (power * p) % newCapacity;
+                    hash = hash * base + static_cast<unsigned char>(c);
                 }
-                newIndex = hash;
+                new_index = static_cast<int>(hash % new_capacity);
             }
-            curr->next = newTable[newIndex];
-            newTable[newIndex] = curr;
-            curr = nextNode;
+            curr->next = new_table[new_index];
+            new_table[new_index] = curr;
+            curr = next_node;
         }
     }
-    table = std::move(newTable);
-    capacity = newCapacity;
+    table = std::move(new_table);
+    capacity = new_capacity;
 }
-
-// Insert or update key/value
 template <typename K, typename V>
-void HashMap<K, V>::insert(const K& key, const V& value) {
-    int index = hashFunction(key);
+void hm<K, V>::ins(const K& key, const V& value) {
+    int index = hash_fn(key);
     Node* curr = table[index];
     while (curr) {
         if (curr->key == key) {
@@ -151,17 +126,15 @@ void HashMap<K, V>::insert(const K& key, const V& value) {
         }
         curr = curr->next;
     }
-    Node* newNode = new Node(key, value);
-    newNode->next = table[index];
-    table[index] = newNode;
+    Node* new_node = new Node(key, value);
+    new_node->next = table[index];
+    table[index] = new_node;
     ++size;
-    if (getLoadFactor() > maxLoad) resize();
+    if (get_load_factor() > max_load) resize();
 }
-
-// Find a value by key
 template <typename K, typename V>
-bool HashMap<K, V>::find(const K& key, V& value_out) const {
-    int index = hashFunction(key);
+bool hm<K, V>::find(const K& key, V& value_out) const {
+    int index = hash_fn(key);
     Node* curr = table[index];
     while (curr) {
         if (curr->key == key) {
@@ -172,11 +145,9 @@ bool HashMap<K, V>::find(const K& key, V& value_out) const {
     }
     return false;
 }
-
-// Remove node by key
 template <typename K, typename V>
-bool HashMap<K, V>::remove(const K& key) {
-    int index = hashFunction(key);
+bool hm<K, V>::rm(const K& key) {
+    int index = hash_fn(key);
     Node* curr = table[index];
     Node* prev = nullptr;
     while (curr) {
@@ -195,5 +166,4 @@ bool HashMap<K, V>::remove(const K& key) {
     }
     return false;
 }
-
-#endif // HASHMAP_HPP
+#endif // HASH_MAP_HPP
